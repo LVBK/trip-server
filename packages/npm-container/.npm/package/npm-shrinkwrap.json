@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "fb": {
+      "version": "0.7.0",
+      "resolved": "https://registry.npmjs.org/fb/-/fb-0.7.0.tgz",
+      "from": "fb@0.7.0",
+      "dependencies": {
+        "crypto": {
+          "version": "0.0.3",
+          "resolved": "https://registry.npmjs.org/crypto/-/crypto-0.0.3.tgz",
+          "from": "crypto@0.0.3"
+        },
+        "request": {
+          "version": "2.9.203",
+          "resolved": "https://registry.npmjs.org/request/-/request-2.9.203.tgz",
+          "from": "request@>=2.9.0 <2.10.0"
+        }
+      }
+    }
+  }
+}

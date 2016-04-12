@@ -1,0 +1,6 @@
+node_modules/
+.idea
+nohup.out
+dist
+.client-build
+.DS_Store
