@@ -12,78 +12,78 @@ function createATripDocument(origin, destination, date, time) {
     return output;
 }
 Meteor.methods({
-    createATrip: function (origin, destination, tripDateTime) {
+    createATrip: function (param) {
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
-            check(origin, LocationSchema);
-            check(destination, LocationSchema);
-            check(tripDateTime.isRoundTrip, Boolean);
-            check(tripDateTime.tripType, Match.Where(function (tripType) {
+            check(param.origin, LocationSchema);
+            check(param.destination, LocationSchema);
+            check(param.isRoundTrip, Boolean);
+            check(param.tripType, Match.Where(function (tripType) {
                 if (tripType !== 'one-time' && tripType !== 'often') {
                     throw Meteor.Errpr('Invalid trip type');
                 } else
                     return true;
             }));
-            check(tripDateTime.travelDate, Match.Optional(Date));
-            check(tripDateTime.travelTime, Date);
-            check(tripDateTime.returnDate, Match.Optional(Date));
-            check(tripDateTime.returnTime, Match.Optional(Date));
-            check(tripDateTime.startDate, Match.Where(function (startDate) {
-                if (tripDateTime.tripType === 'often') {
+            check(param.travelDate, Match.Optional(Date));
+            check(param.travelTime, Date);
+            check(param.returnDate, Match.Optional(Date));
+            check(param.returnTime, Match.Optional(Date));
+            check(param.startDate, Match.Where(function (startDate) {
+                if (param.tripType === 'often') {
                     check(startDate, Date);
                 }
                 return true;
             }));
-            check(tripDateTime.endDate, Match.Where(function (endDate) {
-                if (tripDateTime.tripType === 'often') {
+            check(param.endDate, Match.Where(function (endDate) {
+                if (param.tripType === 'often') {
                     check(endDate, Date);
                 }
                 return true;
             }));
-            check(tripDateTime.travelOften, Match.Where(function (travelOften) {
-                if (tripDateTime.tripType === 'often') {
+            check(param.travelOften, Match.Where(function (travelOften) {
+                if (param.tripType === 'often') {
                     check(travelOften, [Boolean]);
                     return travelOften.length == 7;
                 } else {
                     return true;
                 }
             }));
-            check(tripDateTime.returnOften, Match.Where(function (returnOften) {
-                if (tripDateTime.tripType === 'often' && tripDateTime.isRoundTrip == true) {
+            check(param.returnOften, Match.Where(function (returnOften) {
+                if (param.tripType === 'often' && param.isRoundTrip == true) {
                     check(returnOften, ([Boolean]));
                     return returnOften.length == 7;
                 } else {
                     return true;
                 }
             }));
-            if (tripDateTime.hasOwnProperty('travelDate')) {
-                console.log(createATripDocument(origin, destination, tripDateTime.travelDate, tripDateTime.travelTime));
+            if (param.hasOwnProperty('travelDate')) {
+                console.log(createATripDocument(param.origin, param.destination, param.travelDate, param.travelTime));
             }
-            if (tripDateTime.hasOwnProperty('returnDate')) {
-                console.log(createATripDocument(destination, origin, tripDateTime.returnDate, tripDateTime.returnTime));
+            if (param.hasOwnProperty('returnDate')) {
+                console.log(createATripDocument(param.destination, param.origin, param.returnDate, param.returnTime));
             }
-            if (tripDateTime.hasOwnProperty('startDate') && tripDateTime.hasOwnProperty('endDate')) {
-                if (tripDateTime.isRoundTrip == true) {
-                    for (i = tripDateTime.startDate; i <= tripDateTime.endDate; i.setDate(i.getDate() + 1)) {
-                        if (tripDateTime.travelOften[i.getDay()]) {
-                            console.log(createATripDocument(origin, destination, i, tripDateTime.travelTime));
+            if (param.hasOwnProperty('startDate') && param.hasOwnProperty('endDate')) {
+                if (param.isRoundTrip == true) {
+                    for (i = param.startDate; i <= param.endDate; i.setDate(i.getDate() + 1)) {
+                        if (param.travelOften[i.getDay()]) {
+                            console.log(createATripDocument(param.origin, param.destination, i, param.travelTime));
                         }
-                        if (tripDateTime.returnOften[i.getDay()]) {
-                            console.log(createATripDocument(destination, origin, i, tripDateTime.returnTime));
+                        if (param.returnOften[i.getDay()]) {
+                            console.log(createATripDocument(param.destination, param.origin, i, param.returnTime));
                         }
                     }
                 } else {
-                    for (i = tripDateTime.startDate; i <= tripDateTime.endDate; i.setDate(i.getDate() + 1)) {
-                        if (tripDateTime.travelOften[i.getDay()]) {
-                            console.log(createATripDocument(origin, destination, i, tripDateTime.travelTime));
+                    for (i = param.startDate; i <= param.endDate; i.setDate(i.getDate() + 1)) {
+                        if (param.travelOften[i.getDay()]) {
+                            console.log(createATripDocument(param.origin, param.destination, i, param.travelTime));
                         }
                     }
                 }
             }
             Trips.insert({
-                origin: origin,
-                destination: destination
+                origin: param.origin,
+                destination: param.destination
             }, function (err, result) {
                 if (err) {
                     myFuture.throw(err);
