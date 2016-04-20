@@ -209,7 +209,7 @@ TripsSchema = new SimpleSchema({
         type: Number,
         min: 2
     },
-    emptySeaats: {
+    emptySeats: {
         type: Number,
         min: 1,
         custom: function () {
@@ -234,16 +234,27 @@ TripsSchema = new SimpleSchema({
     flexibleDistance: {
         type: String,
         allowedValues: ['Unacceptable', '3 kilometers', '5 kilometers', '10 kilometers', '15 kilometers'],
+    },
+    isExpired: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
+    isFreezing: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
     }
-
 });
 TripsSchema.messages = {
     noTravelDaysInWeek: 'Select at least one day of the week to travel', // Must be between -90 and 90
     noReturnDaysInWeek: 'Select at least one day of the week to return', // Must be between -180 and 180
-    seatsOutOfRange: '[label] must be greater or equal than 2',
-    emptySeaatsOutOfRange: '[label] must be greater or equal than 1',
-    emptySeaatsOverSeats: '[label] must be less than seats value',
-    pricePerSeatOutOfRange: '[label] must be greater or equal than 0 $',
+    emptySeatsOverSeats: '[label] must be less than seats value',
 };
 Trips.attachSchema(TripsSchema);
 SimpleSchema.messages({

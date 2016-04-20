@@ -43,6 +43,12 @@ RoadMapsSchema = new SimpleSchema({
     },
     startAt: {
         type: Date
+    },
+    slots: {
+        type: Array
+    },
+    'slots.$': {
+        type: String
     }
 })
 RoadMaps.attachSchema(RoadMapsSchema);
