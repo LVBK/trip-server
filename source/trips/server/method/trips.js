@@ -1,62 +1,74 @@
-function createATripDocument(origin, destination, date, time) {
-    date.setHours(time.getHours());
-    date.setMinutes(time.getMinutes());
-    date.setMilliseconds(0);
-    date.setSeconds(0);
-    var output = {
-        origin: origin,
-        destination: destination,
-        date: date,
-
-    };
-    return output;
+insertTripAsync = function (trip, callback) {
+    try {
+        check(trip, TripsSchema);
+        Trips.insert(
+            trip,
+            function (err, result) {
+                if (err) {
+                    callback(err)
+                } else {
+                    callback(false, result);
+                }
+            })
+    } catch (err) {
+        console.log("insertTripAsync", err);
+        callback(err);
+    }
+};
+checkLogin = function(){
+    if(!this.userId){
+        throw new Meteor.Error(406, "Login first");
+    }
 }
 Meteor.methods({
-    createATrip: function (param) {
+    createATrip: function (doc) {
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
-            if(!this.userId){
-                throw new Meteor.Error(406, "Login first");
+            checkLogin();
+            doc = _.extend({}, doc, {owner: this.userId});
+            var insertTripSync = Meteor.wrapAsync(insertTripAsync);
+            var tripId = insertTripSync(doc);
+            var roadMapIds = [], roadMapId;
+            var insertRoadMapSync = Meteor.wrapAsync(insertRoadMapAsync);
+            if (doc.tripType == 'one-time') {
+                roadMapId = insertRoadMapSync(tripId, doc.origin, doc.destination, doc.travelDate, doc.travelTime);
+                roadMapIds.push(roadMapId);
+                if (doc.isRoundTrip == true) {
+                    roadMapId = insertRoadMapSync(tripId, doc.destination, doc.origin, doc.returnDate, doc.returnTime);
+                    roadMapIds.push(roadMapId);
+                }
             }
-            param = _.extend({}, param, {owner: this.userId});
-            check(param, TripsSchema);
-            if (param.hasOwnProperty('travelDate')) {
-                console.log(createATripDocument(param.origin, param.destination, param.travelDate, param.travelTime));
-            }
-            if (param.hasOwnProperty('returnDate')) {
-                console.log(createATripDocument(param.destination, param.origin, param.returnDate, param.returnTime));
-            }
-            if (param.hasOwnProperty('startDate') && param.hasOwnProperty('endDate')) {
-                if (param.isRoundTrip == true) {
-                    for (i = param.startDate; i <= param.endDate; i.setDate(i.getDate() + 1)) {
-                        if (param.travelDaysInWeek[i.getDay()]) {
-                            console.log(createATripDocument(param.origin, param.destination, i, param.travelTime));
+            if (doc.tripType == 'often') {
+                if (doc.isRoundTrip == true) {
+                    for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
+                        if (doc.travelDaysInWeek[i.getDay()]) {
+                            roadMapId = insertRoadMapSync(tripId, doc.origin, doc.destination, i, doc.travelTime);
+                            roadMapIds.push(roadMapId);
                         }
-                        if (param.returnDaysInWeek[i.getDay()]) {
-                            console.log(createATripDocument(param.destination, param.origin, i, param.returnTime));
+                        if (doc.returnDaysInWeek[i.getDay()]) {
+                            roadMapId = insertRoadMapSync(tripId, doc.destination, doc.origin, i, doc.returnTime);
+                            roadMapIds.push(roadMapId);
                         }
                     }
                 } else {
-                    for (i = param.startDate; i <= param.endDate; i.setDate(i.getDate() + 1)) {
-                        if (param.travelDaysInWeek[i.getDay()]) {
-                            console.log(createATripDocument(param.origin, param.destination, i, param.travelTime));
+                    for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
+                        if (doc.travelDaysInWeek[i.getDay()]) {
+                            roadMapId = insertRoadMapSync(tripId, doc.origin, doc.destination, i, doc.travelTime);
+                            roadMapIds.push(roadMapId);
                         }
                     }
                 }
             }
-            Trips.insert(
-                param,
-                function (err, result) {
-                    if (err) {
-                        myFuture.throw(err);
-                        return myFuture.wait();
-                    } else {
-                        myFuture.return(result);
-                    }
-                })
+            myFuture.return(tripId);
         } catch (err) {
-            console.log("createATrip: ", err);
+            console.log("createATrip: ", err.reason);
+            if(tripId){
+                Trips.remove({_id: tripId});
+            }
+            if(roadMapIds && roadMapIds.length > 0){
+                RoadMaps.remove({_id: {$in: roadMapIds}});
+            }
             throw new Meteor.Error(407, err.reason || err.message);
         }
         return myFuture.wait();
