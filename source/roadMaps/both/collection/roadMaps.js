@@ -30,6 +30,9 @@ LocationSchema.messages = {
     latOutOfRange: 'Latitude out of range' // Must be between -180 and 180
 };
 RoadMapsSchema = new SimpleSchema({
+    owner: {
+      type: String
+    },
     tripId: {
         type: String
     },
@@ -49,6 +52,11 @@ RoadMapsSchema = new SimpleSchema({
     },
     'slots.$': {
         type: String
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
 })
 RoadMaps.attachSchema(RoadMapsSchema);

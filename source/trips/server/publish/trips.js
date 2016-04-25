@@ -104,5 +104,48 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         self.ready();
         return;
     }
-})
-;
+});
+Meteor.publishComposite("trip_detail", function (roadMapId, limit) {
+    var self = this, normalizedLimit, base = 5;
+    try {
+        check(roadMapId, String);
+        check(limit, Match.Optional(Number));
+        limit = limit || base;
+        normalizedLimit = limit + (base - (limit % base));
+        return {
+            find: function () {
+                return RoadMaps.find({_id:roadMapId});
+            },
+            children: [
+                {
+                    find: function (roadMap) {
+                        return Trips.find({_id: roadMap.tripId}, {
+                            fields: {
+                                seats: 1,
+                                pricePerSeat: 1,
+                                vehicle: 1,
+                                owner: 1,
+                                baggageSize: 1,
+                                flexibleTime: 1,
+                                flexibleDistance: 1,
+                                isDeleted: 1,
+                                isFreezing: 1,
+                                note: 1
+                            }
+                        });
+                    },
+                },
+                {
+                    find: function(roadMap){
+                        return Meteor.users.find({_id: {$in: roadMap.slots}}, {fields: {publicProfile: 1, isDeleted: 1}});
+                    }
+                }
+
+            ]
+        }
+    } catch (err) {
+        console.log("trip_detail", err);
+        self.ready();
+        return;
+    }
+});
