@@ -235,6 +235,10 @@ TripsSchema = new SimpleSchema({
         type: String,
         allowedValues: ['Unacceptable', '3 kilometers', '5 kilometers', '10 kilometers', '15 kilometers'],
     },
+    note: {
+        type: String,
+        optional: true
+    },
     isExpired: {
         type: Boolean,
         optional: true,
