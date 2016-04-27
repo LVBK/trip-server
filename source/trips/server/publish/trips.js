@@ -15,7 +15,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {startAt: {$lt: afterADay, $gte: date}}
+        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (origin && origin.length == 2) {
             roadMapIds = RoadMaps.find({
                 $and: [

@@ -10,12 +10,18 @@ ReservationsSchema = new SimpleSchema({
         type:String,
         denyUpdate: true
     },
-    totalSeat: {
+    totalSeats: {
         type: Number,
         denyUpdate: true,
         min: 1
     },
-    orderState: {
+    totalPrice: {
+        type: Number,
+        decimal: true,
+        denyUpdate: true,
+        min: 0
+    },
+    bookState: {
         type: String,
         allowedValues: ['waiting', 'accepted', 'denied'],
         optional: true,
