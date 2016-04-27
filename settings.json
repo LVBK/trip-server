@@ -4,12 +4,7 @@
     "COMMENT_MANAGER_ROLE": "comment-manager",
     "USER_MANAGER_ROLE": "user-manager",
     "TRIP_MANAGER_ROLE": "trip-manager",
-    "NEWS_MANAGER_ROLE": "news-manager",
-    "action_type": {
-      "action_buy": "buy",
-      "action_checkin": "checkin",
-      "action_checkout": "checkout"
-    }
+    "NEWS_MANAGER_ROLE": "news-manager"
   },
   "private": {
     "facebook": {
@@ -22,13 +17,7 @@
     }
   },
   "kadira": {
-    "appId": "NHBWGjxebwg3Pvosu",
-    "appSecret": "1f4d6e80-8c47-4b97-83a3-d1e5c832b59d"
+    "appId": "AMfiHqZfqAjbu9vGD",
+    "appSecret": "dda9ce79-60c8-406c-9a77-6ad022cf14a6"
   },
-  "promote": {
-    "key": "promote_setting_key",
-    "max_promote_credit": 10000000,
-    "referal_bonus": 25000,
-    "introduced_bonus": 100000
-  }
 }
