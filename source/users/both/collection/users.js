@@ -125,6 +125,14 @@ UsersSchema = new SimpleSchema({
         defaultValue: 0,
         optional: true
     },
+    phoneVerified: {
+        type: Boolean,
+        defaultValue: false
+    },
+    identityAuthentication: {
+        type: Boolean,
+        defaultValue: false
+    }
 });
 
 Meteor.users.attachSchema(UsersSchema);
