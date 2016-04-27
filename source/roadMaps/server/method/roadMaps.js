@@ -23,4 +23,4 @@ insertRoadMapAsync = function (userId, tripId, origin, destination, date, time, 
         console.log("insertRoadMapAsync", err);
         callback(err);
     }
-}
+};

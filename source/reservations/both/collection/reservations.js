@@ -1,13 +1,30 @@
-//Collection_name = new Meteor.Collection("collection_name");
-//Schema_name = new SimpleSchema({
-//    attribute1:
-//    {
-//        type:String
-//    },
-//    attribute2:
-//    {
-//        type:String
-//    }
-//});
-//
-//Collection_name.attachSchema(Schema_name);
+Reservations = new Meteor.Collection("reservations");
+ReservationsSchema = new SimpleSchema({
+    roadMapId:
+    {
+        type:String,
+        denyUpdate: true
+    },
+    userId:
+    {
+        type:String,
+        denyUpdate: true
+    },
+    totalSeat: {
+        type: Number,
+        denyUpdate: true,
+        min: 1
+    },
+    orderState: {
+        type: String,
+        allowedValues: ['waiting', 'accepted', 'denied'],
+        optional: true,
+        autoValue: function () {
+            if (this.isInsert) {
+                return 'waiting';
+            }
+        },
+    }
+});
+
+Reservations.attachSchema(ReservationsSchema);
