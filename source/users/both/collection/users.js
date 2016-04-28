@@ -101,10 +101,6 @@ UsersSchema = new SimpleSchema({
         type: Boolean,
         optional: true
     },
-    isDeleted: {
-        type: Boolean,
-        defaultValue: false
-    },
     total_rate: {
         type: Number,
         defaultValue: 0,

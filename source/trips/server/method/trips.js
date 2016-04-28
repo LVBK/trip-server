@@ -36,10 +36,10 @@ Meteor.methods({
                 slots.push(this.userId);
             }
             if (doc.tripType == 'one-time') {
-                roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, doc.travelDate, doc.travelTime, slots);
+                roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, doc.travelDate, doc.travelTime, slots, doc.seats);
                 roadMapIds.push(roadMapId);
                 if (doc.isRoundTrip == true) {
-                    roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, doc.returnDate, doc.returnTime, slots);
+                    roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, doc.returnDate, doc.returnTime, slots, doc.seats);
                     roadMapIds.push(roadMapId);
                 }
             }
@@ -47,18 +47,18 @@ Meteor.methods({
                 if (doc.isRoundTrip == true) {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots);
+                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots, doc.seats);
                             roadMapIds.push(roadMapId);
                         }
                         if (doc.returnDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, i, doc.returnTime, slots);
+                            roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, i, doc.returnTime, slots, doc.seats);
                             roadMapIds.push(roadMapId);
                         }
                     }
                 } else {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots);
+                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots, doc.seats);
                             roadMapIds.push(roadMapId);
                         }
                     }

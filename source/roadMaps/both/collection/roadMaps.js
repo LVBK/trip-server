@@ -53,10 +53,16 @@ RoadMapsSchema = new SimpleSchema({
     'slots.$': {
         type: String
     },
-    isDeleted: {
-        type: Boolean,
-        optional: true,
-        defaultValue: false
+    seats: {
+        type: Number,
+        min: 2
     },
+    acceptingReservations: {
+        type: Array,
+        optional: true
+    },
+    'acceptingReservations.$': {
+        type: String
+    }
 })
 RoadMaps.attachSchema(RoadMapsSchema);

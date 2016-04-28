@@ -1,11 +1,7 @@
-Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options) {
+Meteor.users.before.remove(function (userId, doc) {
     if (doc.emails[0].address == Meteor.settings.private.admin.email) {
-        if (modifier.$set && modifier.$set.hasOwnProperty('isDeleted')) {
-            if (modifier.$set.isDeleted == true){
-                throw new Meteor.Error(405, "Can not delete this user!");
-                return false;
-            }
-        }
+        throw new Meteor.Error(405, "Can not delete this user!");
+        return false;
     }
 });
 Meteor.users.after.remove(function (userId, doc) {

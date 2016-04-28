@@ -162,10 +162,7 @@ Accounts.validateLoginAttempt(function (object) {
     if (!object.error && object.user) {
         //var user = object.user;
         //if (user.status.online) throw new Meteor.Error(406, "Account is logging in");
-        if (object.user.isDeleted === true) {
-            throw new Meteor.Error(406, "User not found");
-        }
-        else return true;
+        return true;
     }
     else return true;
 });
@@ -181,13 +178,8 @@ Meteor.methods({
             if (!userIsInAdminRole(this.userId)) {
                 throw new Meteor.Error(405, "permission denied");
             }
-            Meteor.users.update(
+            Meteor.users.remove(
                 {'_id': _id},
-                {
-                    $set: {
-                        'isDeleted': true
-                    }
-                },
                 function (err, result) {
                     if (err) {
                         myFuture.throw(err);
@@ -374,13 +366,8 @@ Meteor.methods({
             if (!userIsInUserManagerRole(this.userId)) {
                 throw new Meteor.Error(405, "permission denied");
             }
-            Meteor.users.update(
+            Meteor.users.remove(
                 {'_id': _id},
-                {
-                    $set: {
-                        'isDeleted': true
-                    }
-                },
                 function (err, result) {
                     if (err) {
                         myFuture.throw(err);

@@ -244,11 +244,6 @@ TripsSchema = new SimpleSchema({
         optional: true,
         defaultValue: false
     },
-    isDeleted: {
-        type: Boolean,
-        optional: true,
-        defaultValue: false
-    },
     isFreezing: {
         type: Boolean,
         optional: true,

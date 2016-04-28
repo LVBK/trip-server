@@ -23,13 +23,23 @@ ReservationsSchema = new SimpleSchema({
     },
     bookState: {
         type: String,
-        allowedValues: ['waiting', 'accepted', 'denied'],
+        allowedValues: ['waiting', 'accepting', 'accepted', 'denied', 'canceled'],
         optional: true,
         autoValue: function () {
             if (this.isInsert) {
                 return 'waiting';
             }
         },
+    },
+    updatedAt: {
+        type: Date,
+        autoValue: function() {
+            if (this.isUpdate) {
+                return new Date();
+            }
+        },
+        denyInsert: true,
+        optional: true
     }
 });
 

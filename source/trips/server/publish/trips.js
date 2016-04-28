@@ -15,7 +15,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
+        dateQuery = {startAt: {$lt: afterADay, $gte: date}};
         if (origin && origin.length == 2) {
             roadMapIds = RoadMaps.find({
                 $and: [
@@ -33,7 +33,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                     dateQuery
                 ]
             }).map(function (roadMap) {
-                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isDeleted: false}, {isFreezing: false}]});
+                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isFreezing: false}]});
                 if (!trip)
                     return;
                 if (roadMap.slots && roadMap.slots.length == trip.seats)
@@ -43,7 +43,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
 
         } else {
             roadMapIds = RoadMaps.find(dateQuery).map(function (roadMap) {
-                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isDeleted: false}, {isFreezing: false}]});
+                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isFreezing: false}]});
                 if (!trip)
                     return;
                 if (roadMap.slots && roadMap.slots.length == trip.seats)
@@ -128,7 +128,6 @@ Meteor.publishComposite("trip_detail", function (roadMapId, limit) {
                                 baggageSize: 1,
                                 flexibleTime: 1,
                                 flexibleDistance: 1,
-                                isDeleted: 1,
                                 isFreezing: 1,
                                 note: 1
                             }
@@ -137,7 +136,7 @@ Meteor.publishComposite("trip_detail", function (roadMapId, limit) {
                 },
                 {
                     find: function(roadMap){
-                        return Meteor.users.find({_id: {$in: roadMap.slots}}, {fields: {publicProfile: 1, isDeleted: 1}});
+                        return Meteor.users.find({_id: {$in: roadMap.slots}}, {fields: {publicProfile: 1}});
                     }
                 }
 

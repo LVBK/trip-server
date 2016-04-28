@@ -1,4 +1,4 @@
-insertRoadMapAsync = function (userId, tripId, origin, destination, date, time, slots, callback) {
+insertRoadMapAsync = function (userId, tripId, origin, destination, date, time, slots, seats, callback) {
     try {
         date.setHours(time.getHours());
         date.setMinutes(time.getMinutes());
@@ -10,7 +10,8 @@ insertRoadMapAsync = function (userId, tripId, origin, destination, date, time, 
             origin: origin,
             destination: destination,
             startAt: date,
-            slots: slots
+            slots: slots,
+            seats: seats
         };
         RoadMaps.insert(roadMap, function (err, result) {
             if (err) {
