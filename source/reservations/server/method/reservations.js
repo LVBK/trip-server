@@ -87,7 +87,9 @@ Meteor.methods({
                 roadMapId: roadMap._id,
                 userId: this.userId,
                 totalSeats: totalSeat,
-                totalPrice: totalSeat * trip.pricePerSeat
+                totalPrice: totalSeat * trip.pricePerSeat,
+                startAt: roadMap.startAt,
+                to: roadMap.owner
             }, function (err, result) {
                 if (err) {
                     myFuture.throw(err);
@@ -255,5 +257,46 @@ Meteor.methods({
             throw new Meteor.Error(407, err.reason || err.message);
         }
         return myFuture.wait();
-    }
+    },
+
+    //ensure correctness and consistent of Reservation state with Roadmaps per 30 minutes
+    checkReservation: function () {
+        try {
+            var dateThreshold = new Date();
+            dateThreshold.setMinutes(dateThreshold.getMinutes() - 30);
+            var interval = new Meteor.setInterval(function () {
+                var reservations = Reservations.find({$and:[{bookState: 'accepting'}, {updatedAt: {$lt: dateThreshold}}]})
+                reservations.forEach(function (reservation) {
+                    var roadMap = RoadMaps.findOne({acceptingReservations: reservation._id});
+                    if(!roadMap){
+                        Reservations.update(
+                            {
+                                _id: reservation._id,
+                                bookState: 'accepting'
+                            }
+                            , {
+                                $set: {
+                                    bookState: 'waiting'
+                                }
+                            }
+                        )
+                    } else {
+                        Reservations.update(
+                            {
+                                _id: reservation._id,
+                                bookState: 'accepting'
+                            }
+                            , {
+                                $set: {
+                                    bookState: 'accepted'
+                                }
+                            }
+                        )
+                    }
+                });
+            }, 1000 * 60 * 30);
+        } catch (err) {
+            console.log("checkReservation", err);
+        }
+    },
 });

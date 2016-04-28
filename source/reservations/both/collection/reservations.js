@@ -10,6 +10,10 @@ ReservationsSchema = new SimpleSchema({
         type:String,
         denyUpdate: true
     },
+    to: {
+        type:String,
+        denyUpdate: true
+    },
     totalSeats: {
         type: Number,
         denyUpdate: true,
@@ -40,6 +44,9 @@ ReservationsSchema = new SimpleSchema({
         },
         denyInsert: true,
         optional: true
+    },
+    startAt: {
+        type: Date
     }
 });
 
