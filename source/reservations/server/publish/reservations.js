@@ -52,13 +52,14 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
         return;
     }
 });
-Meteor.publishComposite("reservation_from_me", function (date, limit) {
-    var self = this, afterADay, dateQuery, normalizedLimit, base = 5, reservationQuery;
+Meteor.publishComposite("reservation_from_me", function (state, date, limit) {
+    var self = this, afterADay, dateQuery, normalizedLimit, base = 5, reservationQuery, stateQuery = {};
     try {
         if (!self.userId) {
             self.ready();
             return;
         }
+        check(state, Match.Optional(String));
         check(limit, Match.Optional(Number));
         check(date, Date);
         limit = limit || base;
@@ -66,12 +67,18 @@ Meteor.publishComposite("reservation_from_me", function (date, limit) {
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
         dateQuery = {startAt: {$lt: afterADay, $gte: date}};
+        if(state){
+            stateQuery = {
+                bookState: state
+            }
+        }
         reservationQuery = {
             $and: [
                 {
                     userId: self.userId,
                 },
-                dateQuery
+                dateQuery,
+                stateQuery
             ]
         };
         return {
