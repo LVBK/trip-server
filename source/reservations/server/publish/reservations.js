@@ -40,7 +40,7 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
             children: [
                 {
                     find: function (reservation) {
-                        return RoadMaps.find({_id: reservation._id}, {
+                        return RoadMaps.find({_id: reservation.roadMapId}, {
                             fields: {
                                 seats: 1,
                                 slots: 1,

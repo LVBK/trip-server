@@ -23,6 +23,7 @@ changeReservationStateAsync = function (reservationId, oldState, newState, callb
 };
 acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
     try {
+        console.log(newSlots);
         RoadMaps.update(
             {
                 _id: roadMap._id,
@@ -39,6 +40,7 @@ acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
                 if (err) {
                     callback(err);
                 } else {
+                    console.log(result);
                     callback(false, result)
                 }
             }
@@ -195,25 +197,25 @@ Meteor.methods({
             var changeReservationStateSync = Meteor.wrapAsync(changeReservationStateAsync);
             var changeReservationResult = changeReservationStateSync(reservation._id, reservation.bookState, 'accepting');
             if (changeReservationResult == 0) {
-                throw new Meteor.Error(409, 'Can not accepted!');
+                throw new Meteor.Error(409, 'Can not accepted 1!');
             }
             //Now reservation in state 'accepting'
             //TODO: server down here: reservation must rollback to waiting
-            var oldSlots = roadMap.slots;
-            var newSlots = roadMap.slots;
+            var oldSlots = roadMap.slots.slice();
+            var newSlots = roadMap.slots.slice();
             for (i = 0; i < reservation.totalSeats; i++) {
                 newSlots.push(reservation.userId);
             }
             var acceptReservationSync = Meteor.wrapAsync(acceptReservationAsync);
             var acceptReservationResult = acceptReservationSync(roadMap, reservation, newSlots);
             if (acceptReservationResult == 0) {
-                throw new Meteor.Error(409, 'Can not accepted!');
+                throw new Meteor.Error(409, 'Can not accepted 2!');
             }
             //TODO: server down here: reservation must be accepted
             //Success accept, now need change reservation state to accepted
             var changeReservationStateToAcceptedResult = changeReservationStateSync(reservation._id, 'accepting', 'accepted');
-            if (changeReservationStateToAcceptedResult) {
-                throw new Meteor.Error(409, 'Can not accepted!');
+            if (changeReservationStateToAcceptedResult == 0) {
+                throw new Meteor.Error(409, 'Can not accepted 3!');
             } else {
                 myFuture.return("This reservation was accepted!")
             }
@@ -250,10 +252,10 @@ Meteor.methods({
                     )
                 }
             } catch (err2) {
-
+                throw new Meteor.Error(407, err2.reason || err2.message);
             }
-            console.log("bookDeny: ", err.reason);
-            throw new Meteor.Error(407, err.reason || err.message);
+            console.log("bookAccept: ", err.reason);
+            throw new Meteor.Error(408, err.reason || err.message);
         }
         return myFuture.wait();
     },
