@@ -41,6 +41,74 @@ TripsSchema = new SimpleSchema({
         type: LocationSchema,
         index: '2dsphere'
     },
+    vehicle: {
+        type: String,
+        allowedValues: ['Motor', 'Car'],
+    },
+    seats: {
+        type: Number,
+        min: 2
+    },
+    startAt: {
+        type: Date
+    },
+    slots: {
+        type: Array
+    },
+    'slots.$': {
+        type: String
+    },
+    pricePerSeat: {
+        type: Number,
+        decimal: true,
+        min: 0
+    },
+    acceptingReservations: {
+        type: Array,
+        optional: true
+    },
+    'acceptingReservations.$': {
+        type: String
+    },
+    baggageSize: {
+        type: String,
+        allowedValues: ['Small', 'Medium', 'Large'],
+    },
+    flexibleTime: {
+        type: String,
+        allowedValues: ['On time', '+/- 5 minutes', '+/- 10 minutes', '+/- 15 minutes', '+/- 30 minutes'],
+    },
+    flexibleDistance: {
+        type: String,
+        allowedValues: ['Unacceptable', '3 kilometers', '5 kilometers', '10 kilometers', '15 kilometers'],
+    },
+    note: {
+        type: String,
+        optional: true
+    },
+    isExpired: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
+    isFreezing: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
+})
+TripsValidationSchema = new SimpleSchema({
+    owner: {
+        type: String
+    },
+    origin: {
+        type: LocationSchema,
+        index: '2dsphere'
+    },
+    destination: {
+        type: LocationSchema,
+        index: '2dsphere'
+    },
     isRoundTrip: {
         type: Boolean
     },

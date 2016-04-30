@@ -1,5 +1,5 @@
 Meteor.publishComposite("trip_search", function (origin, destination, distance, date, limit) {
-    var self = this, roadMapIds, destinationIdSelector, destinationLocationSelector,
+    var self = this, tripIds, destinationIdSelector, destinationLocationSelector,
         destinationQuery = {$and: []}, afterADay, dateQuery, normalizedLimit, base = 5;
     try {
         check(distance, Match.Where(function (distance) {
@@ -17,7 +17,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         afterADay.setDate(afterADay.getDate() + 1);
         dateQuery = {startAt: {$lt: afterADay, $gte: date}};
         if (origin && origin.length == 2) {
-            roadMapIds = RoadMaps.find({
+            tripIds = Trips.find({
                 $and: [
                     {
                         origin: {
@@ -32,26 +32,26 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                     },
                     dateQuery
                 ]
-            }).map(function (roadMap) {
-                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isFreezing: false}]});
-                if (!trip)
+            }).map(function (trip) {
+                if (trip.slots && trip.slots.length == trip.seats)
                     return;
-                if (roadMap.slots && roadMap.slots.length == trip.seats)
+                var user = Meteor.users.findOne({_id: trip.owner});
+                if(!user)
                     return;
-                return roadMap._id;
+                return trip._id;
             });
 
         } else {
-            roadMapIds = RoadMaps.find(dateQuery).map(function (roadMap) {
-                var trip = Trips.findOne({$and: [{_id: roadMap.tripId}, {isFreezing: false}]});
-                if (!trip)
+            tripIds = Trips.find(dateQuery).map(function (trip) {
+                if (trip.slots && trip.slots.length == trip.seats)
                     return;
-                if (roadMap.slots && roadMap.slots.length == trip.seats)
+                var user = Meteor.users.findOne({_id: trip.owner});
+                if(!user)
                     return;
-                return roadMap._id;
+                return trip._id;
             });
         }
-        destinationIdSelector = {_id: {$in: roadMapIds}};
+        destinationIdSelector = {_id: {$in: tripIds}};
         destinationQuery.$and.push(destinationIdSelector);
         if (destination && destination.length == 2) {
             destinationLocationSelector = {
@@ -72,30 +72,26 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         return {
             find: function () {
                 Counts.publish(self, 'trip_search',
-                    RoadMaps.find(destinationQuery, {fields: {_id: 1}}), {noReady: true});
-                return RoadMaps.find(destinationQuery, {
+                    Trips.find(destinationQuery, {fields: {_id: 1}}), {noReady: true});
+                return Trips.find(destinationQuery, {
                     limit: normalizedLimit,
+                    fields: {
+                        origin: 1,
+                        destination: 1,
+                        slots: 1,
+                        startAt: 1,
+                        seats: 1,
+                        pricePerSeat: 1,
+                        vehicle: 1,
+                        owner: 1
+                    }
                 });
             },
             children: [
                 {
-                    find: function (roadMap) {
-                        return Trips.find({_id: roadMap.tripId}, {
-                            fields: {
-                                seats: 1,
-                                pricePerSeat: 1,
-                                vehicle: 1,
-                                owner: 1
-                            }
-                        });
-                    },
-                    children: [
-                        {
-                            find: function (trip) {
-                                return Meteor.users.find({_id: trip.owner}, {fields: {publicProfile: 1}});
-                            }
-                        }
-                    ]
+                    find: function (trip) {
+                        return Meteor.users.find({_id: trip.owner}, {fields: {publicProfile: 1}});
+                    }
                 }
             ]
         }
@@ -105,41 +101,39 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         return;
     }
 });
-Meteor.publishComposite("trip_detail", function (roadMapId, limit) {
+Meteor.publishComposite("trip_detail", function (tripId, limit) {
     var self = this, normalizedLimit, base = 5;
     try {
-        check(roadMapId, String);
+        check(tripId, String);
         check(limit, Match.Optional(Number));
         limit = limit || base;
         normalizedLimit = limit + (base - (limit % base));
         return {
             find: function () {
-                return RoadMaps.find({_id:roadMapId});
+                return Trips.find({_id:tripId}, {
+                    fields: {
+                        origin: 1,
+                        destination: 1,
+                        slots: 1,
+                        startAt: 1,
+                        seats: 1,
+                        pricePerSeat: 1,
+                        vehicle: 1,
+                        owner: 1,
+                        baggageSize: 1,
+                        flexibleTime: 1,
+                        flexibleDistance: 1,
+                        isFreezing: 1,
+                        note: 1
+                    }
+                });
             },
             children: [
                 {
-                    find: function (roadMap) {
-                        return Trips.find({_id: roadMap.tripId}, {
-                            fields: {
-                                seats: 1,
-                                pricePerSeat: 1,
-                                vehicle: 1,
-                                owner: 1,
-                                baggageSize: 1,
-                                flexibleTime: 1,
-                                flexibleDistance: 1,
-                                isFreezing: 1,
-                                note: 1
-                            }
-                        });
-                    },
-                },
-                {
-                    find: function(roadMap){
-                        return Meteor.users.find({_id: {$in: roadMap.slots}}, {fields: {publicProfile: 1}});
+                    find: function(trip){
+                        return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {publicProfile: 1}});
                     }
                 }
-
             ]
         }
     } catch (err) {

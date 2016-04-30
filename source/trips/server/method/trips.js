@@ -1,8 +1,24 @@
-insertTripAsync = function (trip, callback) {
+insertTripAsync = function (trip, date, time, slots, callback) {
     try {
-        check(trip, TripsSchema);
+        date.setHours(time.getHours());
+        date.setMinutes(time.getMinutes());
+        date.setMilliseconds(0);
+        date.setSeconds(0);
         Trips.insert(
-            trip,
+            {
+                owner: trip.owner,
+                origin: trip.origin,
+                destination: trip.destination,
+                vehicle: trip.vehicle,
+                seats: trip.seats,
+                startAt: date,
+                slots: slots,
+                pricePerSeat: trip.pricePerSeat,
+                baggageSize: trip.baggageSize,
+                flexibleTime: trip.flexibleTime,
+                flexibleDistance: trip.flexibleDistance,
+                note: trip.note,
+            },
             function (err, result) {
                 if (err) {
                     callback(err)
@@ -27,39 +43,37 @@ Meteor.methods({
         try {
             checkLogin(this.userId);
             doc = _.extend({}, doc, {owner: this.userId});
+            check(doc, TripsValidationSchema);
             var insertTripSync = Meteor.wrapAsync(insertTripAsync);
-            var userId = this.userId;
-            var tripId = insertTripSync(doc);
-            var roadMapIds = [], roadMapId, slots = [];
-            var insertRoadMapSync = Meteor.wrapAsync(insertRoadMapAsync);
+            var tripIds = [], tripId, slots = [];
             for (var i = (doc.seats - doc.emptySeats); i >= 1; i--) {
                 slots.push(this.userId);
             }
             if (doc.tripType == 'one-time') {
-                roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, doc.travelDate, doc.travelTime, slots, doc.seats);
-                roadMapIds.push(roadMapId);
+                tripId = insertTripSync(doc, doc.travelDate, doc.travelTime, slots);
+                tripIds.push(tripId);
                 if (doc.isRoundTrip == true) {
-                    roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, doc.returnDate, doc.returnTime, slots, doc.seats);
-                    roadMapIds.push(roadMapId);
+                    tripId = insertTripSync(doc, doc.returnDate, doc.returnTime, slots);
+                    tripIds.push(tripId);
                 }
             }
             if (doc.tripType == 'often') {
                 if (doc.isRoundTrip == true) {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots, doc.seats);
-                            roadMapIds.push(roadMapId);
+                            tripId = insertTripSync(doc, i, doc.travelTime, slots);
+                            tripIds.push(tripId);
                         }
                         if (doc.returnDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.destination, doc.origin, i, doc.returnTime, slots, doc.seats);
-                            roadMapIds.push(roadMapId);
+                            tripId = insertTripSync(doc, i, doc.returnTime, slots);
+                            tripIds.push(tripId);
                         }
                     }
                 } else {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            roadMapId = insertRoadMapSync(userId, tripId, doc.origin, doc.destination, i, doc.travelTime, slots, doc.seats);
-                            roadMapIds.push(roadMapId);
+                            tripId = insertTripSync(doc, i, doc.travelTime, slots);
+                            tripIds.push(tripId);
                         }
                     }
                 }
@@ -67,11 +81,8 @@ Meteor.methods({
             myFuture.return(tripId);
         } catch (err) {
             console.log("createATrip: ", err.reason);
-            if (tripId) {
-                Trips.remove({_id: tripId});
-            }
-            if (roadMapIds && roadMapIds.length > 0) {
-                RoadMaps.remove({_id: {$in: roadMapIds}});
+            if (tripIds && tripIds.length > 0) {
+                Trips.remove({_id: {$in: tripIds}});
             }
             throw new Meteor.Error(407, err.reason || err.message);
         }

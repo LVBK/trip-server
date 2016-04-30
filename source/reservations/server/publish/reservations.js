@@ -1,4 +1,3 @@
-//TODO: publish reservation to a roadMap, param: roadMapId, require logged in, is owner of roadMap
 Meteor.publishComposite("reservation_to_me", function (date, limit) {
     var self = this, afterADay, dateQuery, reservationQuery, normalizedLimit, base = 5;
     try {
@@ -29,7 +28,7 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
                         limit: normalizedLimit,
                         fields: {
                             totalSeats: 1,
-                            roadMapId: 1,
+                            tripId: 1,
                             userId: 1,
                             startAt: 1,
                             to: 1
@@ -40,7 +39,7 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
             children: [
                 {
                     find: function (reservation) {
-                        return RoadMaps.find({_id: reservation.roadMapId}, {
+                        return Trips.find({_id: reservation.tripId}, {
                             fields: {
                                 seats: 1,
                                 slots: 1,
@@ -116,7 +115,7 @@ Meteor.publishComposite("reservation_from_me", function (state, date, limit) {
                         fields: {
                             totalSeats: 1,
                             bookState: 1,
-                            roadMapId: 1,
+                            tripId: 1,
                             userId: 1,
                             startAt: 1
                         }
@@ -126,7 +125,7 @@ Meteor.publishComposite("reservation_from_me", function (state, date, limit) {
             children: [
                 {
                     find: function (reservation) {
-                        return RoadMaps.find({_id: reservation.roadMapId}, {
+                        return Trips.find({_id: reservation.tripId}, {
                             fields: {
                                 origin: 1,
                                 destination: 1
@@ -165,7 +164,7 @@ Meteor.publishComposite("my_reservation_detail", function (reservationId) {
             children: [
                 {
                     find: function (reservation) {
-                        return RoadMaps.find({_id: reservation.roadMapId}, {
+                        return Trips.find({_id: reservation.tripId}, {
                             fields: {
                                 seats: 1,
                                 slots: 1,
@@ -211,7 +210,7 @@ Meteor.publishComposite("reservation_detail", function (reservationId) {
             children: [
                 {
                     find: function (reservation) {
-                        return RoadMaps.find({_id: reservation.roadMapId}, {
+                        return Trips.find({_id: reservation.tripId}, {
                             fields: {
                                 seats: 1,
                                 slots: 1,

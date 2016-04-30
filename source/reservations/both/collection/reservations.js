@@ -1,6 +1,6 @@
 Reservations = new Meteor.Collection("reservations");
 ReservationsSchema = new SimpleSchema({
-    roadMapId:
+    tripId:
     {
         type:String,
         denyUpdate: true

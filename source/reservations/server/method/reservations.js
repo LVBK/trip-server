@@ -21,12 +21,12 @@ changeReservationStateAsync = function (reservationId, oldState, newState, callb
         callback(err);
     }
 };
-acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
+acceptReservationAsync = function (trip, reservation, newSlots, callback) {
     try {
-        RoadMaps.update(
+        Trips.update(
             {
-                _id: roadMap._id,
-                slots: roadMap.slots,
+                _id: trip._id,
+                slots: trip.slots,
                 acceptingReservations: {$ne: reservation._id}
             }, {
                 $set: {
@@ -46,16 +46,15 @@ acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
     } catch (err) {
         console.log("acceptReservationAsync", err);
         callback(err);
-        callback(err);
     }
 }
 Meteor.methods({
-    bookSeats: function (roadMapId, totalSeat) {
+    bookSeats: function (tripId, totalSeat) {
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
             checkLogin(this.userId);
-            check(roadMapId, String);
+            check(tripId, String);
             check(totalSeat, Match.Where(function (totalSeat) {
                 check(totalSeat, Number);
                 if (totalSeat <= 0) {
@@ -64,32 +63,29 @@ Meteor.methods({
                 return totalSeat > 0;
             }));
 
-            var roadMap = RoadMaps.findOne({_id: roadMapId});
-            if (!roadMap) {
-                throw new Meteor.Error(406, "Not found roadmap for booking");
-            }
-            var trip = Trips.findOne({_id: roadMap.tripId});
+            var trip = Trips.findOne({_id: tripId});
             if (!trip) {
-                throw new Meteor.Error(407, "Not found trip for booking");
+                throw new Meteor.Error(406, "Not found trip for booking");
             }
+
             if (trip.hasOwnProperty('isFreezing') && trip.isFreezing == true) {
                 throw new Meteor.Error(409, "This trip do not accept for booking now");
             }
-            var user = Meteor.users.findOne({_id: roadMap.owner});
+            var user = Meteor.users.findOne({_id: trip.owner});
             if (!user) {
                 throw new Meteor.Error(410, "Not found driver, can't book this trip");
             }
-            if (totalSeat > (trip.seats - roadMap.slots.length)) {
+            if (totalSeat > (trip.seats - trip.slots.length)) {
                 throw new Meteor.Error(411, "Not enough empty seat for book");
             }
             //Create order
             Reservations.insert({
-                roadMapId: roadMap._id,
+                tripId: trip._id,
                 userId: this.userId,
                 totalSeats: totalSeat,
                 totalPrice: totalSeat * trip.pricePerSeat,
-                startAt: roadMap.startAt,
-                to: roadMap.owner
+                startAt: trip.startAt,
+                to: trip.owner
             }, function (err, result) {
                 if (err) {
                     myFuture.throw(err);
@@ -149,8 +145,8 @@ Meteor.methods({
             if (reservation.bookState !== 'waiting') {
                 throw new Meteor.Error(406, 'This reservation is in ' + reservation.bookState + ' state! Can not deny now!');
             }
-            var roadMap = RoadMaps.findOne({$and: [{_id: reservation.roadMapId}, {owner: self.userId}]});
-            if (!roadMap) {
+            var trip = Trips.findOne({$and: [{_id: reservation.tripId}, {owner: self.userId}]});
+            if (!trip) {
                 throw new Meteor.Error(407, 'You have no permission to deny this reservation');
             }
             //Update if is concurrent
@@ -181,14 +177,14 @@ Meteor.methods({
             if (reservation.bookState !== 'waiting') {
                 throw new Meteor.Error(406, 'This reservation is in ' + reservation.bookState + ' state! Can not accept now!');
             }
-            var roadMap = RoadMaps.findOne({$and: [{_id: reservation.roadMapId}, {owner: self.userId}]});
-            if (!roadMap) {
+            var trip = Trips.findOne({$and: [{_id: reservation.tripId}, {owner: self.userId}]});
+            if (!trip) {
                 throw new Meteor.Error(407, 'You have no permission to accept this reservation');
             }
-            if (reservation.totalSeats > (roadMap.seats - roadMap.slots.length)) {
+            if (reservation.totalSeats > (trip.seats - trip.slots.length)) {
                 throw new Meteor.Error(408, 'Not enough empty seats for this reservation');
             }
-            if (roadMap.startAt < new Date()) {
+            if (trip.startAt < new Date()) {
                 throw new Meteor.Error(409, 'This trip was departed! No longer acceptable');
             }
             //Update if is concurrent
@@ -199,13 +195,13 @@ Meteor.methods({
             }
             //Now reservation in state 'accepting'
             //TODO: server down here: reservation must rollback to waiting
-            var oldSlots = roadMap.slots.slice();
-            var newSlots = roadMap.slots.slice();
+            var oldSlots = trip.slots.slice();
+            var newSlots = trip.slots.slice();
             for (i = 0; i < reservation.totalSeats; i++) {
                 newSlots.push(reservation.userId);
             }
             var acceptReservationSync = Meteor.wrapAsync(acceptReservationAsync);
-            var acceptReservationResult = acceptReservationSync(roadMap, reservation, newSlots);
+            var acceptReservationResult = acceptReservationSync(trip, reservation, newSlots);
             if (acceptReservationResult == 0) {
                 throw new Meteor.Error(409, 'Can not accepted 2!');
             }
@@ -235,9 +231,9 @@ Meteor.methods({
                     )
                 }
                 if (acceptReservationResult) {
-                    RoadMaps.update(
+                    Trips.update(
                         {
-                            _id: roadMap._id,
+                            _id: trip._id,
                             slots: newSlots,
                             acceptingReservations: reservation._id
                         },
@@ -258,7 +254,7 @@ Meteor.methods({
         return myFuture.wait();
     },
 
-    //ensure correctness and consistent of Reservation state with Roadmaps per 30 minutes
+    //ensure correctness and consistent of Reservation state with Trips per 30 minutes
     checkReservation: function () {
         try {
             var dateThreshold = new Date();
@@ -266,8 +262,8 @@ Meteor.methods({
             var interval = new Meteor.setInterval(function () {
                 var reservations = Reservations.find({$and:[{bookState: 'accepting'}, {updatedAt: {$lt: dateThreshold}}]})
                 reservations.forEach(function (reservation) {
-                    var roadMap = RoadMaps.findOne({acceptingReservations: reservation._id});
-                    if(!roadMap){
+                    var trip = Trips.findOne({acceptingReservations: reservation._id});
+                    if(!trip){
                         Reservations.update(
                             {
                                 _id: reservation._id,
