@@ -23,7 +23,6 @@ changeReservationStateAsync = function (reservationId, oldState, newState, callb
 };
 acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
     try {
-        console.log(newSlots);
         RoadMaps.update(
             {
                 _id: roadMap._id,
@@ -40,7 +39,6 @@ acceptReservationAsync = function (roadMap, reservation, newSlots, callback) {
                 if (err) {
                     callback(err);
                 } else {
-                    console.log(result);
                     callback(false, result)
                 }
             }
