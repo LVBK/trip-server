@@ -174,7 +174,6 @@ Meteor.methods({
             var self = this;
             checkLogin(self.userId);
             check(reservationId, String);
-
             var reservation = Reservations.findOne({$and: [{_id: reservationId}]});
             if (!reservation) {
                 throw new Meteor.Error(405, 'Not found reservation');
