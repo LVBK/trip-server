@@ -31,7 +31,8 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
                             tripId: 1,
                             userId: 1,
                             startAt: 1,
-                            to: 1
+                            to: 1,
+                            bookState: 1
                         }
                     }
                 );
