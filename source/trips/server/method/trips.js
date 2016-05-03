@@ -88,4 +88,86 @@ Meteor.methods({
         }
         return myFuture.wait();
     },
+    deleteTrip: function (tripId) {
+        Future = Npm.require('fibers/future');
+        var myFuture = new Future();
+        try {
+            checkLogin(this.userId);
+            check(tripId, String);
+            var trip = Trips.findOne({_id: tripId});
+            if (!trip) {
+                throw new Meteor.Error(406, "Not found trip");
+            }
+            if (trip.owner !== this.userId) {
+                throw new Meteor.Error(406, "Permission denied");
+            }
+            for (var i = 0; i < trip.slots.length; i++) {
+                if(trip.slots[i] !== this.userId){
+                    throw new Meteor.Error(408, "This trip have passenger now! Can not delete");
+                }
+            }
+            Trips.update(
+                {_id: trip._id},
+                {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, function (err, result) {
+                    if (err) {
+                        myFuture.throw(err);
+                        return myFuture.wait();
+                    } else {
+                        myFuture.return(result);
+                    }
+                }
+            )
+        } catch (err) {
+            console.log("deleteTrip: ", err.reason);
+            throw new Meteor.Error(407, err.reason || err.message);
+        }
+        return myFuture.wait();
+    },
+    updateTrip: function (tripId, modifier) {
+        Future = Npm.require('fibers/future');
+        var myFuture = new Future();
+        try {
+            checkLogin(this.userId);
+            check(tripId, String);
+            var trip = Trips.findOne({_id: tripId});
+            if (!trip) {
+                throw new Meteor.Error(406, "Not found trip");
+            }
+            if (trip.owner !== this.userId) {
+                throw new Meteor.Error(407, "Permission denied");
+            }
+            for (var i = 0; i < trip.slots.length; i++) {
+                if(trip.slots[i] !== this.userId){
+                    throw new Meteor.Error(408, "This trip have passenger now! Can not update");
+                }
+            }
+            Trips.update(
+                {_id: trip._id},
+                {
+                    $set: {
+                        note: modifier.note,
+                        baggageSize: modifier.baggageSize,
+                        flexibleTime: modifier.flexibleTime,
+                        flexibleDistance: modifier.flexibleDistance,
+                        pricePerSeat: modifier.pricePerSeat,
+                    }
+                }, function (err, result) {
+                    if (err) {
+                        myFuture.throw(err);
+                        return myFuture.wait();
+                    } else {
+                        myFuture.return(result);
+                    }
+                }
+            )
+        } catch (err) {
+            console.log("deleteTrip: ", err.reason);
+            throw new Meteor.Error(407, err.reason || err.message);
+        }
+        return myFuture.wait();
+    },
 });

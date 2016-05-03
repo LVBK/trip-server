@@ -15,7 +15,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
+        dateQuery = {$and: [{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (origin && origin.length == 2) {
             tripIds = Trips.find({
                 $and: [
@@ -36,7 +36,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                 if (trip.slots && trip.slots.length == trip.seats)
                     return;
                 var user = Meteor.users.findOne({$and: [{_id: trip.owner}, {isDeleted: false}]});
-                if(!user)
+                if (!user)
                     return;
                 return trip._id;
             });
@@ -46,7 +46,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                 if (trip.slots && trip.slots.length == trip.seats)
                     return;
                 var user = Meteor.users.findOne({$and: [{_id: trip.owner}, {isDeleted: false}]});
-                if(!user)
+                if (!user)
                     return;
                 return trip._id;
             });
@@ -110,7 +110,7 @@ Meteor.publishComposite("trip_detail", function (tripId, limit) {
         normalizedLimit = limit + (base - (limit % base));
         return {
             find: function () {
-                return Trips.find({_id:tripId}, {
+                return Trips.find({_id: tripId}, {
                     fields: {
                         origin: 1,
                         destination: 1,
@@ -130,7 +130,7 @@ Meteor.publishComposite("trip_detail", function (tripId, limit) {
             },
             children: [
                 {
-                    find: function(trip){
+                    find: function (trip) {
                         return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {publicProfile: 1, isDeleted: 1}});
                     }
                 }
@@ -138,6 +138,48 @@ Meteor.publishComposite("trip_detail", function (tripId, limit) {
         }
     } catch (err) {
         console.log("trip_detail", err);
+        self.ready();
+        return;
+    }
+});
+Meteor.publish("my_trips", function (date, limit) {
+    var self = this, endOfDay, selector, normalizedLimit, base = 5;
+    try {
+        if(!self.userId){
+            self.ready();
+            return;
+        }
+        check(limit, Match.Optional(Number));
+        check(date, Date);
+        limit = limit || base;
+        normalizedLimit = limit + (base - (limit % base));
+        endOfDay = new Date(date.getTime());
+        endOfDay.setDate(endOfDay.getDate() + 1);
+        endOfDay.setHours(0, 0, 0, 0);
+        selector = {
+            $and: [
+                {owner: self.userId},
+                {startAt: {$lt: endOfDay, $gte: date}},
+                {isDeleted: false}
+            ]
+        }
+        Counts.publish(self, 'my_trips',
+            Trips.find(selector, {fields: {_id: 1}}), {noReady: true});
+        return Trips.find(selector, {
+            limit: normalizedLimit,
+            fields: {
+                origin: 1,
+                destination: 1,
+                slots: 1,
+                startAt: 1,
+                seats: 1,
+                pricePerSeat: 1,
+                vehicle: 1,
+                owner: 1,
+            }
+        });
+    } catch (err) {
+        console.log("my_trips", err);
         self.ready();
         return;
     }
