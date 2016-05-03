@@ -47,7 +47,12 @@ ReservationsSchema = new SimpleSchema({
     },
     startAt: {
         type: Date
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
 });
 
 Reservations.attachSchema(ReservationsSchema);

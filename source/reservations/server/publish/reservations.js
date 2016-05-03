@@ -11,7 +11,7 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {startAt: {$lt: afterADay, $gte: date}};
+        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         reservationQuery = {
             $and: [
                 {to: self.userId},
@@ -77,7 +77,7 @@ Meteor.publishComposite("reservation_from_me", function (state, date, limit) {
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {startAt: {$lt: afterADay, $gte: date}};
+        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (state) {
             stateQuery = {
                 bookState: state
@@ -170,14 +170,15 @@ Meteor.publishComposite("my_reservation_detail", function (reservationId) {
                                 seats: 1,
                                 slots: 1,
                                 origin: 1,
-                                destination: 1
+                                destination: 1,
+                                isDeleted: 1
                             }
                         });
                     }
                 },
                 {
                     find: function (reservation) {
-                        return Meteor.users.find({_id: reservation.to}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: reservation.to}, {fields: {publicProfile: 1, isDeleted: 1}});
                     }
                 }
             ]
@@ -216,14 +217,15 @@ Meteor.publishComposite("reservation_detail", function (reservationId) {
                                 seats: 1,
                                 slots: 1,
                                 origin: 1,
-                                destination: 1
+                                destination: 1,
+                                isDeleted: 1
                             }
                         });
                     }
                 },
                 {
                     find: function (reservation) {
-                        return Meteor.users.find({_id: reservation.userId}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: reservation.userId}, {fields: {publicProfile: 1, isDeleted: 1}});
                     }
                 }
             ]

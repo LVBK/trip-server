@@ -67,13 +67,15 @@ Meteor.methods({
             if (!trip) {
                 throw new Meteor.Error(406, "Not found trip for booking");
             }
-
-            if (trip.hasOwnProperty('isFreezing') && trip.isFreezing == true) {
-                throw new Meteor.Error(409, "This trip do not accept for booking now");
+            if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
+                throw new Meteor.Error(407, "This trip has been removed");
             }
             var user = Meteor.users.findOne({_id: trip.owner});
             if (!user) {
                 throw new Meteor.Error(410, "Not found driver, can't book this trip");
+            }
+            if (user.hasOwnProperty('isDeleted') && user.isDeleted == true) {
+                throw new Meteor.Error(407, "Driver of trip has been removed, can't book this trip");
             }
             if (totalSeat > (trip.seats - trip.slots.length)) {
                 throw new Meteor.Error(411, "Not enough empty seat for book");
@@ -107,7 +109,7 @@ Meteor.methods({
         try {
             checkLogin(this.userId);
             check(reservationId, String);
-            var reservation = Reservations.findOne({$and: [{_id: reservationId}]});
+            var reservation = Reservations.findOne({$and: [{_id: reservationId}, {isDeleted: false}]});
             if (!reservation) {
                 throw new Meteor.Error(406, 'Not found reservation');
             }
@@ -138,7 +140,7 @@ Meteor.methods({
             var self = this;
             checkLogin(self.userId);
             check(reservationId, String);
-            var reservation = Reservations.findOne({$and: [{_id: reservationId}]});
+            var reservation = Reservations.findOne({$and: [{_id: reservationId}, {isDeleted: false}]});
             if (!reservation) {
                 throw new Meteor.Error(406, 'Not found reservation');
             }
@@ -170,13 +172,22 @@ Meteor.methods({
             var self = this;
             checkLogin(self.userId);
             check(reservationId, String);
-            var reservation = Reservations.findOne({$and: [{_id: reservationId}]});
+            var reservation = Reservations.findOne({$and: [{_id: reservationId}, {isDeleted: false}]});
             if (!reservation) {
                 throw new Meteor.Error(405, 'Not found reservation');
             }
             if (reservation.bookState !== 'waiting') {
                 throw new Meteor.Error(406, 'This reservation is in ' + reservation.bookState + ' state! Can not accept now!');
             }
+
+            var booker = Meteor.users.findOne({_id: reservation.userId});
+            if (!booker) {
+                throw new Meteor.Error(410, "Not found booker, can't accept this reservation");
+            }
+            if (booker.hasOwnProperty('isDeleted') && booker.isDeleted == true) {
+                throw new Meteor.Error(407, "Owner of reservation has been removed, can't accept");
+            }
+
             var trip = Trips.findOne({$and: [{_id: reservation.tripId}, {owner: self.userId}]});
             if (!trip) {
                 throw new Meteor.Error(407, 'You have no permission to accept this reservation');

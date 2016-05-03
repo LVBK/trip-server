@@ -1,7 +1,28 @@
-Meteor.users.before.remove(function (userId, doc) {
+Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options) {
     if (doc.emails[0].address == Meteor.settings.private.admin.email) {
-        throw new Meteor.Error(405, "Can not delete this user!");
-        return false;
+        if (modifier.$set && modifier.$set.hasOwnProperty('isDeleted')) {
+            if (modifier.$set.isDeleted == true) {
+                throw new Meteor.Error(405, "Can not delete this user!");
+                return false;
+            }
+        }
+    }
+});
+Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options) {
+    if (modifier.$set && modifier.$set.hasOwnProperty('isDeleted')) {
+        if (modifier.$set.isDeleted == true) {
+            Trips.update(
+                {
+                    owner: doc._id
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
+            )
+        }
     }
 });
 Meteor.users.after.remove(function (userId, doc) {

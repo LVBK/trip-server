@@ -1,4 +1,4 @@
-insertTripAsync = function (trip, date, time, slots, callback) {
+insertTripAsync = function (trip, origin, destination, date, time, slots, callback) {
     try {
         date.setHours(time.getHours());
         date.setMinutes(time.getMinutes());
@@ -7,8 +7,8 @@ insertTripAsync = function (trip, date, time, slots, callback) {
         Trips.insert(
             {
                 owner: trip.owner,
-                origin: trip.origin,
-                destination: trip.destination,
+                origin: origin,
+                destination: destination,
                 vehicle: trip.vehicle,
                 seats: trip.seats,
                 startAt: date,
@@ -50,10 +50,10 @@ Meteor.methods({
                 slots.push(this.userId);
             }
             if (doc.tripType == 'one-time') {
-                tripId = insertTripSync(doc, doc.travelDate, doc.travelTime, slots);
+                tripId = insertTripSync(doc, doc.origin, doc.destination, doc.travelDate, doc.travelTime, slots);
                 tripIds.push(tripId);
                 if (doc.isRoundTrip == true) {
-                    tripId = insertTripSync(doc, doc.returnDate, doc.returnTime, slots);
+                    tripId = insertTripSync(doc, doc.destination, doc.origin, doc.returnDate, doc.returnTime, slots);
                     tripIds.push(tripId);
                 }
             }
@@ -61,18 +61,18 @@ Meteor.methods({
                 if (doc.isRoundTrip == true) {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            tripId = insertTripSync(doc, i, doc.travelTime, slots);
+                            tripId = insertTripSync(doc, doc.origin, doc.destination, i, doc.travelTime, slots);
                             tripIds.push(tripId);
                         }
                         if (doc.returnDaysInWeek[i.getDay()]) {
-                            tripId = insertTripSync(doc, i, doc.returnTime, slots);
+                            tripId = insertTripSync(doc, doc.destination, doc.origin, i, doc.returnTime, slots);
                             tripIds.push(tripId);
                         }
                     }
                 } else {
                     for (i = doc.startDate; i <= doc.endDate; i.setDate(i.getDate() + 1)) {
                         if (doc.travelDaysInWeek[i.getDay()]) {
-                            tripId = insertTripSync(doc, i, doc.travelTime, slots);
+                            tripId = insertTripSync(doc, doc.origin, doc.destination, i, doc.travelTime, slots);
                             tripIds.push(tripId);
                         }
                     }

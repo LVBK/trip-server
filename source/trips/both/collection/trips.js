@@ -91,7 +91,7 @@ TripsSchema = new SimpleSchema({
         optional: true,
         defaultValue: false
     },
-    isFreezing: {
+    isDeleted: {
         type: Boolean,
         optional: true,
         defaultValue: false
@@ -312,11 +312,6 @@ TripsValidationSchema = new SimpleSchema({
         optional: true,
         defaultValue: false
     },
-    isFreezing: {
-        type: Boolean,
-        optional: true,
-        defaultValue: false
-    }
 });
 TripsSchema.messages = {
     noTravelDaysInWeek: 'Select at least one day of the week to travel', // Must be between -90 and 90

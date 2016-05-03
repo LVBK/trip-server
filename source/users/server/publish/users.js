@@ -21,6 +21,7 @@ Meteor.publish("employee_list", function (selector, options) {
         }
         var findSelector = {
             $and: [
+                {isDeleted: false},
                 {'isEmployee': true},
                 selector
             ]
@@ -69,6 +70,7 @@ Meteor.publish("user_list", function (selector, options) {
         }
         var findSelector = {
             $and: [
+                {isDeleted: false},
                 {$nor: [{'isEmployee': true}]},
                 selector
             ]

@@ -15,7 +15,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         normalizedLimit = limit + (base - (limit % base));
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {startAt: {$lt: afterADay, $gte: date}};
+        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (origin && origin.length == 2) {
             tripIds = Trips.find({
                 $and: [
@@ -35,7 +35,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
             }).map(function (trip) {
                 if (trip.slots && trip.slots.length == trip.seats)
                     return;
-                var user = Meteor.users.findOne({_id: trip.owner});
+                var user = Meteor.users.findOne({$and: [{_id: trip.owner}, {isDeleted: false}]});
                 if(!user)
                     return;
                 return trip._id;
@@ -45,7 +45,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
             tripIds = Trips.find(dateQuery).map(function (trip) {
                 if (trip.slots && trip.slots.length == trip.seats)
                     return;
-                var user = Meteor.users.findOne({_id: trip.owner});
+                var user = Meteor.users.findOne({$and: [{_id: trip.owner}, {isDeleted: false}]});
                 if(!user)
                     return;
                 return trip._id;
@@ -83,7 +83,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                         seats: 1,
                         pricePerSeat: 1,
                         vehicle: 1,
-                        owner: 1
+                        owner: 1,
                     }
                 });
             },
@@ -123,15 +123,15 @@ Meteor.publishComposite("trip_detail", function (tripId, limit) {
                         baggageSize: 1,
                         flexibleTime: 1,
                         flexibleDistance: 1,
-                        isFreezing: 1,
-                        note: 1
+                        note: 1,
+                        isDeleted: 1
                     }
                 });
             },
             children: [
                 {
                     find: function(trip){
-                        return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {publicProfile: 1, isDeleted: 1}});
                     }
                 }
             ]
