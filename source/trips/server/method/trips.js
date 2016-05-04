@@ -98,13 +98,11 @@ Meteor.methods({
             if (!trip) {
                 throw new Meteor.Error(406, "Not found trip");
             }
+            if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
+                throw new Meteor.Error(407, "This trip was removed");
+            }
             if (trip.owner !== this.userId) {
                 throw new Meteor.Error(406, "Permission denied");
-            }
-            for (var i = 0; i < trip.slots.length; i++) {
-                if(trip.slots[i] !== this.userId){
-                    throw new Meteor.Error(408, "This trip have passenger now! Can not delete");
-                }
             }
             Trips.update(
                 {_id: trip._id},
@@ -137,13 +135,14 @@ Meteor.methods({
             if (!trip) {
                 throw new Meteor.Error(406, "Not found trip");
             }
+            if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
+                throw new Meteor.Error(407, "This trip has been removed");
+            }
+            if(trip.hasOwnProperty('startAt') && trip.startAt < new Date()){
+                throw new Meteor.Error(407, "This trip has been departed");
+            }
             if (trip.owner !== this.userId) {
                 throw new Meteor.Error(407, "Permission denied");
-            }
-            for (var i = 0; i < trip.slots.length; i++) {
-                if(trip.slots[i] !== this.userId){
-                    throw new Meteor.Error(408, "This trip have passenger now! Can not update");
-                }
             }
             Trips.update(
                 {_id: trip._id},

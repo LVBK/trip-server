@@ -70,6 +70,9 @@ Meteor.methods({
             if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
                 throw new Meteor.Error(407, "This trip has been removed");
             }
+            if(trip.hasOwnProperty('startAt') && trip.startAt < new Date()){
+                throw new Meteor.Error(407, "This trip has been departed");
+            }
             var user = Meteor.users.findOne({_id: trip.owner});
             if (!user) {
                 throw new Meteor.Error(410, "Not found driver, can't book this trip");

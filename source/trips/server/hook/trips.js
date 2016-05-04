@@ -15,3 +15,4 @@ Trips.before.update(function (userId, doc, fieldNames, modifier, options) {
         }
     }
 });
+//TODO: notification to all passenger after change info

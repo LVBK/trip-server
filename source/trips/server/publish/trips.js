@@ -101,13 +101,10 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
         return;
     }
 });
-Meteor.publishComposite("trip_detail", function (tripId, limit) {
+Meteor.publishComposite("trip_detail", function (tripId) {
     var self = this, normalizedLimit, base = 5;
     try {
         check(tripId, String);
-        check(limit, Match.Optional(Number));
-        limit = limit || base;
-        normalizedLimit = limit + (base - (limit % base));
         return {
             find: function () {
                 return Trips.find({_id: tripId}, {
