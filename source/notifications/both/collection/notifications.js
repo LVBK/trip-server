@@ -53,8 +53,12 @@ NotificationsSchema = new SimpleSchema({
         type: Boolean,
         defaultValue: false
     },
-    link: {
+    state: {
         type: String
+    },
+    params: {
+        type: Object,
+        blackbox: true
     }
 });
 
