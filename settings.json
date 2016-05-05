@@ -19,5 +19,37 @@
   "kadira": {
     "appId": "AMfiHqZfqAjbu9vGD",
     "appSecret": "dda9ce79-60c8-406c-9a77-6ad022cf14a6"
-  }
+  },
+  "actionTypes": [
+    {
+      "type": "book",
+      "description": "booked seat"
+    },
+    {
+      "type": "accept",
+      "description": "accepted"
+    },
+    {
+      "type": "deny",
+      "description": "denied"
+    },
+    {
+      "type": "change",
+      "description": "changed"
+    }
+  ],
+  "notificationTypes": [
+    {
+      "type": "book",
+      "description": "to your trip"
+    },
+    {
+      "type": "approve",
+      "description": "your reservation"
+    },
+    {
+      "type": "change",
+      "description": "the trip information that you go together"
+    }
+  ]
 }

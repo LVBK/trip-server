@@ -201,14 +201,13 @@ Meteor.methods({
             if (trip.startAt < new Date()) {
                 throw new Meteor.Error(409, 'This trip was departed! No longer acceptable');
             }
-            //Update if is concurrent
+            //Update if is current
             var changeReservationStateSync = Meteor.wrapAsync(changeReservationStateAsync);
             var changeReservationResult = changeReservationStateSync(reservation._id, reservation.bookState, 'accepting');
             if (changeReservationResult == 0) {
                 throw new Meteor.Error(409, 'Can not accepted 1!');
             }
             //Now reservation in state 'accepting'
-            //TODO: server down here: reservation must rollback to waiting
             var oldSlots = trip.slots.slice();
             var newSlots = trip.slots.slice();
             for (i = 0; i < reservation.totalSeats; i++) {
@@ -219,7 +218,6 @@ Meteor.methods({
             if (acceptReservationResult == 0) {
                 throw new Meteor.Error(409, 'Can not accepted 2!');
             }
-            //TODO: server down here: reservation must be accepted
             //Success accept, now need change reservation state to accepted
             var changeReservationStateToAcceptedResult = changeReservationStateSync(reservation._id, 'accepting', 'accepted');
             if (changeReservationStateToAcceptedResult == 0) {
