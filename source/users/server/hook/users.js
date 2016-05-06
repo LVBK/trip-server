@@ -8,12 +8,54 @@ Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options)
         }
     }
 });
-Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options) {
+Meteor.users.after.update(function (userId, doc, fieldNames, modifier, options) {
     if (modifier.$set && modifier.$set.hasOwnProperty('isDeleted')) {
         if (modifier.$set.isDeleted == true) {
             Trips.update(
                 {
-                    owner: doc._id
+                    $and: [
+                        {owner: doc._id},
+                        {isDeleted: false}
+                    ]
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
+            );
+            Reservations.update(
+                {
+                    $and: [
+                        {userId: doc._id},
+                        {isDeleted: false}
+                    ]
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
+            );
+            Checkins.update(
+                {
+                    userId: doc._id
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
+            );
+            Notifications.update(
+                {
+                    $or: [
+                        {userId: doc._id},
+                        {senderId: doc._id}
+                    ]
                 }, {
                     $set: {
                         'isDeleted': true
@@ -22,6 +64,7 @@ Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options)
                     multi: true
                 }
             )
+
         }
     }
 });

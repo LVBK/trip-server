@@ -275,9 +275,9 @@ Meteor.methods({
     //ensure correctness and consistent of Reservation state with Trips per 30 minutes
     checkReservation: function () {
         try {
-            var dateThreshold = new Date();
-            dateThreshold.setMinutes(dateThreshold.getMinutes() - 30);
             var interval = new Meteor.setInterval(function () {
+                var dateThreshold = new Date();
+                dateThreshold.setMinutes(dateThreshold.getMinutes() - 30);
                 var reservations = Reservations.find({$and:[{bookState: 'accepting'}, {updatedAt: {$lt: dateThreshold}}]})
                 reservations.forEach(function (reservation) {
                     var trip = Trips.findOne({acceptingReservations: reservation._id});

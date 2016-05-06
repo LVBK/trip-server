@@ -49,7 +49,12 @@ CheckinsSchema = new SimpleSchema({
                 return 'endCheckInAbleShouldL'
             }
         }
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
 });
 
 Checkins.attachSchema(CheckinsSchema);

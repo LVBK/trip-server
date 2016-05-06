@@ -11,6 +11,17 @@ Trips.before.update(function (userId, doc, fieldNames, modifier, options) {
                 }, {
                     multi: true
                 }
+            );
+            Checkins.update(
+                {
+                    tripId: doc._id
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
             )
         }
     }
@@ -56,7 +67,7 @@ Trips.after.insert(function (userId, doc) {
         var startCheckInAble, endCheckInAble;
         startCheckInAble = new Date(doc.startAt.getTime());
         endCheckInAble = new Date(startCheckInAble.getTime());
-        endCheckInAble.setMinutes(endCheckInAble.getMinutes + doc.flexibleTime);
+        endCheckInAble.setMinutes(endCheckInAble.getMinutes() + doc.flexibleTime);
         var checkInRecord = {
             userId: doc.owner,
             tripId: doc._id,
@@ -65,7 +76,7 @@ Trips.after.insert(function (userId, doc) {
         }
         Checkins.insert(checkInRecord);
     } catch (err) {
-        console.log("Trips after insert", err);
+        console.log("Trips after insert", err.reason);
     }
 });
 

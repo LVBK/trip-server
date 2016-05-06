@@ -54,7 +54,7 @@ Reservations.after.update(function (userId, doc, fieldNames, modifier, options) 
                 if(trip){
                     startCheckInAble = new Date(trip.startAt.getTime());
                     endCheckInAble = new Date(startCheckInAble.getTime());
-                    endCheckInAble.setMinutes(endCheckInAble.getMinutes + trip.flexibleTime);
+                    endCheckInAble.setMinutes(endCheckInAble.getMinutes() + trip.flexibleTime);
                     var checkInRecord = {
                         userId: doc.userId,
                         tripId: doc.tripId,
@@ -66,6 +66,6 @@ Reservations.after.update(function (userId, doc, fieldNames, modifier, options) 
             }
         }
     } catch (err) {
-        console.log("Reservations after update", err);
+        console.log("Reservations after update", err.reason);
     }
 });

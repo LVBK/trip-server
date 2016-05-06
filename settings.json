@@ -36,6 +36,18 @@
     {
       "type": "change",
       "description": "changed"
+    },
+    {
+      "type": "checkInAble",
+      "description": "You can checkin to"
+    },
+    {
+      "type": "checkInExpired",
+      "description": "You're late! Should checkin to"
+    },
+    {
+      "type": "checkout",
+      "description": "Are you ok? Checkout"
     }
   ],
   "notificationTypes": [
@@ -50,6 +62,14 @@
     {
       "type": "change",
       "description": "the trip information that you go together"
+    },
+    {
+      "type": "checkin",
+      "description": "the trip you have created or booked."
+    },
+    {
+      "type": "checkout",
+      "description": "the trip you have checked in ! Running out of time for check out"
     }
   ]
 }

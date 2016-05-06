@@ -59,7 +59,12 @@ NotificationsSchema = new SimpleSchema({
     params: {
         type: Object,
         blackbox: true
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
 });
 
 Notifications.attachSchema(NotificationsSchema);
