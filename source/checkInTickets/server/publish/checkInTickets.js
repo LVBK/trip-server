@@ -10,10 +10,10 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
         check(date, Date);
         limit = limit || base;
         normalizedLimit = limit + (base - (limit % base));
-        date.setHours(0,0,0,0);
+        date.setHours(0, 0, 0, 0);
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {$and:[{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
+        dateQuery = {$and: [{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (state) {
             stateQuery = {
                 state: state
@@ -72,6 +72,53 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
         }
     } catch (err) {
         console.log("checkInTickets", err);
+        self.ready();
+        return;
+    }
+});
+Meteor.publishComposite("checkInTicket", function (checkInTicketId) {
+    var self = this;
+    try {
+        if (!self.userId) {
+            self.ready();
+            return;
+        }
+        check(checkInTicketId, String);
+        return {
+            find: function () {
+                return CheckInTickets.find(
+                    {
+                        $and: [
+                            {_id: checkInTicketId},
+                            {userId: self.userId}
+                        ]
+                    },
+                    {
+                        fields: {
+                            userId: 1,
+                            tripId: 1,
+                            state: 1,
+                            isDeleted: 1,
+                        }
+                    }
+                );
+            },
+            children: [
+                {
+                    find: function (ticket) {
+                        return Trips.find({_id: ticket.tripId}, {
+                            fields: {
+                                origin: 1,
+                                destination: 1,
+                                isDeleted: 1
+                            }
+                        });
+                    }
+                }
+            ]
+        }
+    } catch (err) {
+        console.log("checkInTicket", err);
         self.ready();
         return;
     }
