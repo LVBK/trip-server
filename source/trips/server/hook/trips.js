@@ -51,4 +51,21 @@ Trips.before.update(function (userId, doc, fieldNames, modifier, options) {
         console.log("Trip update", err);
     }
 });
+Trips.after.insert(function (userId, doc) {
+    try {
+        var startCheckInAble, endCheckInAble;
+        startCheckInAble = new Date(doc.startAt.getTime());
+        endCheckInAble = new Date(startCheckInAble.getTime());
+        endCheckInAble.setMinutes(endCheckInAble.getMinutes + doc.flexibleTime);
+        var checkInRecord = {
+            userId: doc.owner,
+            tripId: doc._id,
+            startCheckInAble: startCheckInAble,
+            endCheckInAble: endCheckInAble
+        }
+        Checkins.insert(checkInRecord);
+    } catch (err) {
+        console.log("Trips after insert", err);
+    }
+});
 

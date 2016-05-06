@@ -45,3 +45,27 @@ Reservations.after.update(function (userId, doc, fieldNames, modifier, options) 
         console.log("Reservations after update", err);
     }
 });
+Reservations.after.update(function (userId, doc, fieldNames, modifier, options) {
+    try {
+        if (modifier.$set && modifier.$set.hasOwnProperty('bookState')) {
+            if (modifier.$set.bookState == "accepted") {
+                var startCheckInAble, endCheckInAble;
+                var trip = Trips.findOne({$and:[{_id: doc.tripId}, {isDeleted: false}]});
+                if(trip){
+                    startCheckInAble = new Date(trip.startAt.getTime());
+                    endCheckInAble = new Date(startCheckInAble.getTime());
+                    endCheckInAble.setMinutes(endCheckInAble.getMinutes + trip.flexibleTime);
+                    var checkInRecord = {
+                        userId: doc.userId,
+                        tripId: doc.tripId,
+                        startCheckInAble: startCheckInAble,
+                        endCheckInAble: endCheckInAble
+                    };
+                    Checkins.insert(checkInRecord);
+                }
+            }
+        }
+    } catch (err) {
+        console.log("Reservations after update", err);
+    }
+});

@@ -1,0 +1,1 @@
+Checkins.permit(['insert', 'update', 'remove']).never()

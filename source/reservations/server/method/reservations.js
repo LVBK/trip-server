@@ -154,6 +154,9 @@ Meteor.methods({
             if (!trip) {
                 throw new Meteor.Error(407, 'You have no permission to deny this reservation');
             }
+            if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
+                throw new Meteor.Error(407, "This trip has been removed");
+            }
             //Update if is concurrent
             var changeReservationStateSync = Meteor.wrapAsync(changeReservationStateAsync);
             var result = changeReservationStateSync(reservation._id, reservation.bookState, 'denied');
@@ -200,6 +203,9 @@ Meteor.methods({
             }
             if (trip.startAt < new Date()) {
                 throw new Meteor.Error(409, 'This trip was departed! No longer acceptable');
+            }
+            if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
+                throw new Meteor.Error(407, "This trip has been removed");
             }
             //Update if is current
             var changeReservationStateSync = Meteor.wrapAsync(changeReservationStateAsync);

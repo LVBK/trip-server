@@ -75,8 +75,8 @@ TripsSchema = new SimpleSchema({
         allowedValues: ['Small', 'Medium', 'Large'],
     },
     flexibleTime: {
-        type: String,
-        allowedValues: ['On time', '+/- 5 minutes', '+/- 10 minutes', '+/- 15 minutes', '+/- 30 minutes'],
+        type: Number,
+        allowedValues: [0, 5, 10, 15, 30],
     },
     flexibleDistance: {
         type: String,
@@ -296,8 +296,8 @@ TripsValidationSchema = new SimpleSchema({
         allowedValues: ['Small', 'Medium', 'Large'],
     },
     flexibleTime: {
-        type: String,
-        allowedValues: ['On time', '+/- 5 minutes', '+/- 10 minutes', '+/- 15 minutes', '+/- 30 minutes'],
+        type: Number,
+        allowedValues: [0, 5, 10, 15, 30],
     },
     flexibleDistance: {
         type: String,
