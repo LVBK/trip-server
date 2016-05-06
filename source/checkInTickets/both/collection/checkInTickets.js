@@ -1,5 +1,5 @@
-Checkins = new Meteor.Collection("checkins");
-CheckinsSchema = new SimpleSchema({
+CheckInTickets = new Meteor.Collection("checkInTickets");
+checkInTicketsSchema = new SimpleSchema({
     userId: {
         type: String
     },
@@ -57,7 +57,7 @@ CheckinsSchema = new SimpleSchema({
     },
 });
 
-Checkins.attachSchema(CheckinsSchema);
-CheckinsSchema.messages = {
+CheckInTickets.attachSchema(checkInTicketsSchema);
+checkInTicketsSchema.messages = {
     endCheckInAbleShouldLater: 'endCheckInAble field should have value later or same time than startCheckInAble',
 };

@@ -1,0 +1,1 @@
+CheckInTickets.permit(['insert', 'update', 'remove']).never()

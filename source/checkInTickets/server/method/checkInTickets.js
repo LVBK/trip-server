@@ -1,12 +1,12 @@
 Meteor.methods({
-    updateCheckinState: function () {
+    updateCheckInTicketState: function () {
         try {
             var interval = new Meteor.setInterval(function () {
                 var now = new Date();
                 now.setSeconds(0, 0);
                 var afterTwoMinutes = new Date(now.getTime());
                 afterTwoMinutes.setMinutes(afterTwoMinutes.getMinutes() + 2);
-                var checkInAbles = Checkins.find(
+                var checkInAbleTickets = CheckInTickets.find(
                     {
                         $and: [
                             {state: 'coming'},
@@ -15,9 +15,9 @@ Meteor.methods({
                         ]
                     }
                 );
-                checkInAbles.forEach(function (checkin) {
-                    Checkins.update(
-                        checkin,
+                checkInAbleTickets.forEach(function (ticket) {
+                    CheckInTickets.update(
+                        ticket,
                         {
                             $set: {
                                 state: "checkInAble"
@@ -25,7 +25,7 @@ Meteor.methods({
                         }
                     )
                 });
-                var expireds = Checkins.find(
+                var expiredTickets = CheckInTickets.find(
                     {
                         $and: [
                             {$or: [{state: 'coming'}, {state: 'checkInAble'}]},
@@ -33,9 +33,9 @@ Meteor.methods({
                         ]
                     }
                 );
-                expireds.forEach(function (checkin) {
-                    Checkins.update(
-                        checkin,
+                expiredTickets.forEach(function (ticket) {
+                    CheckInTickets.update(
+                        ticket,
                         {
                             $set: {
                                 state: "expired"
@@ -43,7 +43,7 @@ Meteor.methods({
                         }
                     )
                 });
-                var shouldCheckoutTickets = Checkins.find(
+                var shouldCheckoutTickets = CheckInTickets.find(
                     {
                         $and: [
                             {state: 'checkedIn'},
@@ -56,13 +56,13 @@ Meteor.methods({
                         userId: ticket.userId,
                         actionType: Meteor.settings.actionTypes[6].type,
                         notificationType: Meteor.settings.notificationTypes[4].type,
-                        state: "menu.checkIn",
+                        state: "menu.checkInTicket",
                         params: {
-                            checkInId: ticket._id
+                            checkInTicketId: ticket._id
                         }
                     });
                 });
-                var sosTickets = Checkins.find(
+                var sosTickets = CheckInTickets.find(
                     {
                         $and: [
                             {state: 'checkedIn'},
@@ -75,16 +75,16 @@ Meteor.methods({
                 });
             }, 1000 * 60);
         } catch (err) {
-            console.log("updateCheckinState", err.reason);
+            console.log("updateCheckInTicketState", err.reason);
         }
     },
-    checkIn: function (checkInId, checkOutPassword, checkOutLimitMinute, checkInLocation) {
+    checkIn: function (checkInTicketId, checkOutPassword, checkOutLimitMinute, checkInLocation) {
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
             var self = this;
             checkLogin(self.userId);
-            check(checkInId, String);
+            check(checkInTicketId, String);
             check(checkOutPassword, String);
             check(checkOutLimitMinute, Number);
             if (checkOutLimitMinute <= 0) {
@@ -93,7 +93,7 @@ Meteor.methods({
             var now = new Date();
             var checkOutLimitTime = new Date(now.getTime());
             checkOutLimitTime.setMinutes(checkOutLimitTime.getMinutes + checkOutLimitMinute);
-            var checkin = Checkins.findOne({$and: [{_id: checkInId}, {isDeleted: false}]});
+            var checkin = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
             if (!checkin) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
             }
@@ -104,7 +104,7 @@ Meteor.methods({
                 throw new Meteor.Error(408, 'C This checkin ticket is in ' + checkin.state + ' state! Can not checkin!');
             }
             //update if current
-            Checkins.update({
+            CheckInTickets.update({
                 $and: [
                     {_id: checkin._id},
                     {state: checkin.state}
@@ -132,15 +132,15 @@ Meteor.methods({
         }
         return myFuture.wait();
     },
-    checkOut: function (checkInId, checkOutPassword, checkOutLocation) {
+    checkOut: function (checkInTicketId, checkOutPassword, checkOutLocation) {
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
             var self = this;
             checkLogin(self.userId);
-            check(checkInId, String);
+            check(checkInTicketId, String);
             check(checkOutPassword, String);
-            var checkin = Checkins.findOne({$and: [{_id: checkInId}, {isDeleted: false}]});
+            var checkin = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
             if (!checkin) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
             }
@@ -159,7 +159,7 @@ Meteor.methods({
                 //TODO: create SOS report with checkOutLocation
             }
             //update if current
-            Checkins.update({
+            CheckInTickets.update({
                 $and: [
                     {_id: checkin._id},
                     {state: checkin.state}

@@ -1,4 +1,4 @@
-Meteor.publishComposite("checkIns", function (state, date, limit) {
+Meteor.publishComposite("checkInTickets", function (state, date, limit) {
     var self = this, afterADay, dateQuery, normalizedLimit, base = 5, checkInQuery, stateQuery = {};
     try {
         if (!self.userId) {
@@ -32,8 +32,8 @@ Meteor.publishComposite("checkIns", function (state, date, limit) {
             find: function () {
                 Counts.publish(
                     self,
-                    'checkIns',
-                    Checkins.find(
+                    'checkInTickets',
+                    CheckInTickets.find(
                         checkInQuery,
                         {
                             fields: {
@@ -45,7 +45,7 @@ Meteor.publishComposite("checkIns", function (state, date, limit) {
                         noReady: true
                     }
                 );
-                return Checkins.find(
+                return CheckInTickets.find(
                     checkInQuery,
                     {
                         limit: normalizedLimit,
@@ -59,8 +59,8 @@ Meteor.publishComposite("checkIns", function (state, date, limit) {
             },
             children: [
                 {
-                    find: function (checkin) {
-                        return Trips.find({_id: checkin.tripId}, {
+                    find: function (ticket) {
+                        return Trips.find({_id: ticket.tripId}, {
                             fields: {
                                 origin: 1,
                                 destination: 1
@@ -71,7 +71,7 @@ Meteor.publishComposite("checkIns", function (state, date, limit) {
             ]
         }
     } catch (err) {
-        console.log("checkIns", err);
+        console.log("checkInTickets", err);
         self.ready();
         return;
     }
