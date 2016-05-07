@@ -39,7 +39,7 @@ Meteor.users.after.update(function (userId, doc, fieldNames, modifier, options) 
                     multi: true
                 }
             );
-            Checkins.update(
+            CheckInTickets.update(
                 {
                     userId: doc._id
                 }, {

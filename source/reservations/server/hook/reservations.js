@@ -61,7 +61,7 @@ Reservations.after.update(function (userId, doc, fieldNames, modifier, options) 
                         startCheckInAble: startCheckInAble,
                         endCheckInAble: endCheckInAble
                     };
-                    Checkins.insert(checkInRecord);
+                    CheckInTickets.insert(checkInRecord);
                 }
             }
         }

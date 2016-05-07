@@ -84,6 +84,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
                         pricePerSeat: 1,
                         vehicle: 1,
                         owner: 1,
+                        isDeleted: 1
                     }
                 });
             },

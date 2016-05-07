@@ -12,7 +12,7 @@ Trips.before.update(function (userId, doc, fieldNames, modifier, options) {
                     multi: true
                 }
             );
-            Checkins.update(
+            CheckInTickets.update(
                 {
                     tripId: doc._id
                 }, {
@@ -74,7 +74,7 @@ Trips.after.insert(function (userId, doc) {
             startCheckInAble: startCheckInAble,
             endCheckInAble: endCheckInAble
         }
-        Checkins.insert(checkInRecord);
+        CheckInTickets.insert(checkInRecord);
     } catch (err) {
         console.log("Trips after insert", err.reason);
     }

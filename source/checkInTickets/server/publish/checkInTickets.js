@@ -13,7 +13,8 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
         date.setHours(0, 0, 0, 0);
         afterADay = new Date(date.getTime());
         afterADay.setDate(afterADay.getDate() + 1);
-        dateQuery = {$and: [{startAt: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
+        console.log(normalizedLimit, state, date, afterADay);
+        dateQuery = {$and: [{startCheckInAble: {$lt: afterADay, $gte: date}}, {isDeleted: false}]};
         if (state) {
             stateQuery = {
                 state: state
@@ -52,7 +53,8 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
                         fields: {
                             tripId: 1,
                             userId: 1,
-                            state: 1
+                            state: 1,
+                            isDeleted: 1
                         }
                     }
                 );
@@ -63,7 +65,8 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
                         return Trips.find({_id: ticket.tripId}, {
                             fields: {
                                 origin: 1,
-                                destination: 1
+                                destination: 1,
+                                startAt: 1
                             }
                         });
                     }

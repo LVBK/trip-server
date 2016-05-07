@@ -11,7 +11,8 @@ Meteor.methods({
                         $and: [
                             {state: 'coming'},
                             {startCheckInAble: {$lte: now}},
-                            {endCheckInAble: {$gte: now}}
+                            {endCheckInAble: {$gte: now}},
+                            {isDeleted: false}
                         ]
                     }
                 );
@@ -29,7 +30,8 @@ Meteor.methods({
                     {
                         $and: [
                             {$or: [{state: 'coming'}, {state: 'checkInAble'}]},
-                            {endCheckInAble: {$lt: now}}
+                            {endCheckInAble: {$lt: now}},
+                            {isDeleted: false}
                         ]
                     }
                 );
@@ -47,7 +49,8 @@ Meteor.methods({
                     {
                         $and: [
                             {state: 'checkedIn'},
-                            {checkOutLimitTime: {$lt: afterTwoMinutes, $gte: now}}
+                            {checkOutLimitTime: {$lt: afterTwoMinutes, $gte: now}},
+                            {isDeleted: false}
                         ]
                     }
                 );
@@ -66,7 +69,8 @@ Meteor.methods({
                     {
                         $and: [
                             {state: 'checkedIn'},
-                            {checkOutLimitTime: {$lt: now}}
+                            {checkOutLimitTime: {$lt: now}},
+                            {isDeleted: false}
                         ]
                     }
                 );
@@ -93,21 +97,21 @@ Meteor.methods({
             var now = new Date();
             var checkOutLimitTime = new Date(now.getTime());
             checkOutLimitTime.setMinutes(checkOutLimitTime.getMinutes + checkOutLimitMinute);
-            var checkin = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
-            if (!checkin) {
+            var ticket = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
+            if (!ticket) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
             }
-            if (checkin.userId !== self.userId) {
+            if (ticket.userId !== self.userId) {
                 throw new Meteor.Error(407, 'You have no permission to use this checkin ticket');
             }
-            if (checkin.state !== 'checkInAble' && checkin.state !== 'expired') {
-                throw new Meteor.Error(408, 'C This checkin ticket is in ' + checkin.state + ' state! Can not checkin!');
+            if (ticket.state !== 'checkInAble' && ticket.state !== 'expired') {
+                throw new Meteor.Error(408, 'C This checkin ticket is in ' + ticket.state + ' state! Can not checkin!');
             }
             //update if current
             CheckInTickets.update({
                 $and: [
-                    {_id: checkin._id},
-                    {state: checkin.state}
+                    {_id: ticket._id},
+                    {state: ticket.state}
                 ]
             }, {
                 $set: {
@@ -140,29 +144,29 @@ Meteor.methods({
             checkLogin(self.userId);
             check(checkInTicketId, String);
             check(checkOutPassword, String);
-            var checkin = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
-            if (!checkin) {
+            var ticket = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
+            if (!ticket) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
             }
-            if (checkin.userId !== self.userId) {
+            if (ticket.userId !== self.userId) {
                 throw new Meteor.Error(408, 'You have no permission to use this checkin ticket');
             }
-            if (checkin.state !== 'checkedIn') {
-                throw new Meteor.Error(409, 'C This checkin ticket is in ' + checkin.state + ' state! Can not checkin!');
+            if (ticket.state !== 'checkedIn') {
+                throw new Meteor.Error(409, 'C This checkin ticket is in ' + ticket.state + ' state! Can not checkin!');
             }
             var checkOutPasswordReverse = checkOutPassword.split('').reverse().join('');
             console.log("Reverse", checkOutPasswordReverse);
-            if (checkin.checkOutPassword !== checkOutPassword && checkin.checkOutPassword !== checkOutPasswordReverse) {
+            if (ticket.checkOutPassword !== checkOutPassword && ticket.checkOutPassword !== checkOutPasswordReverse) {
                 throw new Meteor.Error(410, 'Incorrect checkout password');
             }
-            if (checkin.checkOutPassword == checkOutPasswordReverse) {
+            if (ticket.checkOutPassword == checkOutPasswordReverse) {
                 //TODO: create SOS report with checkOutLocation
             }
             //update if current
             CheckInTickets.update({
                 $and: [
-                    {_id: checkin._id},
-                    {state: checkin.state}
+                    {_id: ticket._id},
+                    {state: ticket.state}
                 ]
             }, {
                 $set: {
