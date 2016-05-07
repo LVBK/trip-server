@@ -91,6 +91,7 @@ Meteor.methods({
             check(checkInTicketId, String);
             check(checkOutPassword, String);
             check(checkOutLimitMinute, Number);
+            check(checkInLocation, Match.Optional(LocationSchema));
             if (checkOutLimitMinute <= 0) {
                 throw new Meteor.Error(406, "checkOutLimitMinute must larger than 0");
             }
@@ -119,7 +120,8 @@ Meteor.methods({
                     state: 'checkedIn',
                     checkOutPassword: checkOutPassword,
                     checkOutLimitTime: checkOutLimitTime,
-                    checkedInAt: now
+                    checkedInAt: now,
+                    checkedInLocation: checkInLocation
                 }
             }, function (err, result) {
                 if (err) {
@@ -146,6 +148,8 @@ Meteor.methods({
             checkLogin(self.userId);
             check(checkInTicketId, String);
             check(checkOutPassword, String);
+            console.log(checkOutLocation);
+            check(checkOutLocation, Match.Optional(LocationSchema));
             var ticket = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
             if (!ticket) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
@@ -164,6 +168,7 @@ Meteor.methods({
                 //TODO: create SOS report with checkOutLocation
             }
             //update if current
+            console.log(checkOutLocation);
             CheckInTickets.update({
                 $and: [
                     {_id: ticket._id},
@@ -172,7 +177,8 @@ Meteor.methods({
             }, {
                 $set: {
                     state: 'checkedOut',
-                    checkedOutAt: new Date()
+                    checkedOutAt: new Date(),
+                    checkedOutLocation: checkOutLocation
                 }
             }, function (err, result) {
                 if (err) {
@@ -186,7 +192,7 @@ Meteor.methods({
                 }
             });
         } catch (err) {
-            console.log("checkOut: ", err.reason);
+            console.log("checkOut: ", err);
             throw new Meteor.Error(407, err.reason || err.message);
         }
         return myFuture.wait();

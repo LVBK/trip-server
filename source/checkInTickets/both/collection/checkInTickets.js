@@ -67,6 +67,10 @@ checkInTicketsSchema = new SimpleSchema({
             }
         }
     },
+    checkedInLocation: {
+        type: LocationSchema,
+        optional: true
+    },
     checkedOutAt: {
         type: Date,
         optional: true,
@@ -78,6 +82,10 @@ checkInTicketsSchema = new SimpleSchema({
                 }
             }
         }
+    },
+    checkedOutLocation: {
+        type: LocationSchema,
+        optional: true
     }
 });
 
