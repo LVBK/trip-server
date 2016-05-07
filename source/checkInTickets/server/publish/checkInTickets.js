@@ -54,7 +54,7 @@ Meteor.publishComposite("checkInTickets", function (state, date, limit) {
                             tripId: 1,
                             userId: 1,
                             state: 1,
-                            isDeleted: 1
+                            isDeleted: 1,
                         }
                     }
                 );
@@ -102,6 +102,8 @@ Meteor.publishComposite("checkInTicket", function (checkInTicketId) {
                             tripId: 1,
                             state: 1,
                             isDeleted: 1,
+                            checkedInAt: 1,
+                            checkedOutAt: 1
                         }
                     }
                 );

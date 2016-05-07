@@ -55,6 +55,30 @@ checkInTicketsSchema = new SimpleSchema({
         optional: true,
         defaultValue: false
     },
+    checkedInAt: {
+        type: Date,
+        optional: true,
+        custom: function () {
+            if (this.field('state').value == 'checkedIn') {
+                // updates
+                if (this.isSet) {
+                    if (this.operator === "$set" && this.value === null) return "required";
+                }
+            }
+        }
+    },
+    checkedOutAt: {
+        type: Date,
+        optional: true,
+        custom: function () {
+            if (this.field('state').value == 'checkedOut') {
+                // updates
+                if (this.isSet) {
+                    if (this.operator === "$set" && this.value === null) return "required";
+                }
+            }
+        }
+    }
 });
 
 CheckInTickets.attachSchema(checkInTicketsSchema);

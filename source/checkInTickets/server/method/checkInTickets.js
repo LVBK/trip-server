@@ -95,8 +95,9 @@ Meteor.methods({
                 throw new Meteor.Error(406, "checkOutLimitMinute must larger than 0");
             }
             var now = new Date();
+            now.setSeconds(0,0);
             var checkOutLimitTime = new Date(now.getTime());
-            checkOutLimitTime.setMinutes(checkOutLimitTime.getMinutes + checkOutLimitMinute);
+            checkOutLimitTime.setMinutes(checkOutLimitTime.getMinutes() + checkOutLimitMinute);
             var ticket = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
             if (!ticket) {
                 throw new Meteor.Error(407, 'Not found checkin ticket');
@@ -117,7 +118,8 @@ Meteor.methods({
                 $set: {
                     state: 'checkedIn',
                     checkOutPassword: checkOutPassword,
-                    checkOutLimitTime: checkOutLimitTime
+                    checkOutLimitTime: checkOutLimitTime,
+                    checkedInAt: now
                 }
             }, function (err, result) {
                 if (err) {
@@ -155,7 +157,6 @@ Meteor.methods({
                 throw new Meteor.Error(409, 'C This checkin ticket is in ' + ticket.state + ' state! Can not checkin!');
             }
             var checkOutPasswordReverse = checkOutPassword.split('').reverse().join('');
-            console.log("Reverse", checkOutPasswordReverse);
             if (ticket.checkOutPassword !== checkOutPassword && ticket.checkOutPassword !== checkOutPasswordReverse) {
                 throw new Meteor.Error(410, 'Incorrect checkout password');
             }
@@ -171,6 +172,7 @@ Meteor.methods({
             }, {
                 $set: {
                     state: 'checkedOut',
+                    checkedOutAt: new Date()
                 }
             }, function (err, result) {
                 if (err) {
