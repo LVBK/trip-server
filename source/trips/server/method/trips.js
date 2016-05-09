@@ -31,11 +31,6 @@ insertTripAsync = function (trip, origin, destination, date, time, slots, callba
         callback(err);
     }
 };
-checkLogin = function (userId) {
-    if (!userId) {
-        throw new Meteor.Error(406, "Login first");
-    }
-}
 Meteor.methods({
     createATrip: function (doc) {
         Future = Npm.require('fibers/future');

@@ -1,18 +1,16 @@
-//Collection-name.before.insert(function (userId, doc) {
-//
-//});
-//Collection-name.after.insert(function (userId, doc) {
-//
-//});Collection-name.before.remove(function (userId, doc) {
-//
-//});
-//Collection-name.after.r(function (userId, doc) {
-//
-//});
-//Collection-name.before.update(function (userId, doc, fieldNames, modifier, options) {
-//
-//});
-//Collection-name.after.update(function (userId, doc, fieldNames, modifier, options) {
-//
-//});
-// for more information https://github.com/matb33/meteor-collection-hooks
+Comments.after.insert(function (userId, doc) {
+    try {
+        Notifications.insert({
+            userId: doc.to,
+            senderId: doc.from,
+            actionType: Meteor.settings.actionTypes[7].type,
+            notificationType: Meteor.settings.notificationTypes[5].type,
+            state: "menu.tripDetail",
+            params: {
+                tripId: doc.tripId
+            }
+        });
+    } catch (err) {
+        console.log("Comments after insert", err);
+    }
+});

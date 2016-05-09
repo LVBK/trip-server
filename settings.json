@@ -48,6 +48,10 @@
     {
       "type": "checkout",
       "description": "Are you ok? Checkout"
+    },
+    {
+      "type": "sent",
+      "description": "sent"
     }
   ],
   "notificationTypes": [
@@ -70,6 +74,10 @@
     {
       "type": "checkout",
       "description": "the trip you have checked in ! Running out of time for check out"
+    },
+    {
+      "type": "comment",
+      "description": "a comment to you"
     }
   ]
 }

@@ -1,1 +1,1 @@
-//Collection-name.permit(['insert', 'update', 'remove']).ifHasRole('admin').apply();
+Comments.permit(['insert', 'update', 'remove']).never()

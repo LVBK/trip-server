@@ -83,7 +83,7 @@ Meteor.methods({
             if (totalSeat > (trip.seats - trip.slots.length)) {
                 throw new Meteor.Error(411, "Not enough empty seat for book");
             }
-            //Create order
+
             Reservations.insert({
                 tripId: trip._id,
                 userId: this.userId,

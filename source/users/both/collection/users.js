@@ -120,11 +120,6 @@ UsersSchema = new SimpleSchema({
         defaultValue: 0,
         optional: true
     },
-    total_comment: {
-        type: Number,
-        defaultValue: 0,
-        optional: true
-    },
     phoneVerified: {
         type: Boolean,
         defaultValue: false

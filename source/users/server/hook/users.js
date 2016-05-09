@@ -63,6 +63,34 @@ Meteor.users.after.update(function (userId, doc, fieldNames, modifier, options) 
                 }, {
                     multi: true
                 }
+            );
+            Feedbacks.update(
+                {
+                    $or: [
+                        {from: doc._id},
+                        {to: doc._id}
+                    ]
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
+            );
+            Comments.update(
+                {
+                    $or: [
+                        {from: doc._id},
+                        {to: doc._id}
+                    ]
+                }, {
+                    $set: {
+                        'isDeleted': true
+                    }
+                }, {
+                    multi: true
+                }
             )
 
         }
@@ -81,5 +109,23 @@ Meteor.users.after.remove(function (userId, doc) {
             {_id: adminId},
             {$set: {'isEmployee': true}}
         );
+    }
+});
+Meteor.users.before.update(function (userId, doc, fieldNames, modifier, options) {
+    if (modifier.$inc) {
+        if (modifier.$inc.hasOwnProperty('total_rate_user') || modifier.$inc.hasOwnProperty('total_rate')) {
+            var total_rate = doc.total_rate + modifier.$inc['total_rate'];
+            var total_rate_user = doc.total_rate_user + modifier.$inc['total_rate_user'];
+            if (total_rate == 0) {
+                modifier.$set = {
+                    rate: 0
+                }
+            } else {
+                modifier.$set = {
+                    rate: total_rate / total_rate_user
+                }
+            }
+
+        }
     }
 });

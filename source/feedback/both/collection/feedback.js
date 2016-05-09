@@ -1,14 +1,18 @@
-Comments = new Meteor.Collection("comments");
-CommentsSchema = new SimpleSchema({
+Feedbacks = new Meteor.Collection("feedbacks");
+FeedbacksSchema = new SimpleSchema({
     from: {
         type: String
     },
     to: {
-        type: String
-    },
-    tripId: {
         type: String,
         index: 1,
+    },
+    tripId: {
+        type: String
+    },
+    rate: {
+        type: Number,
+        allowedValues: [1, 2, 3, 4, 5]
     },
     content: {
         type: String,
@@ -29,4 +33,4 @@ CommentsSchema = new SimpleSchema({
     }
 });
 
-Comments.attachSchema(CommentsSchema);
+Feedbacks.attachSchema(FeedbacksSchema);

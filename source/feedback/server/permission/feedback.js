@@ -1,0 +1,1 @@
+Feedbacks.permit(['insert', 'update', 'remove']).never()
