@@ -20,6 +20,19 @@ Meteor.methods({
             if (trip.hasOwnProperty('isDeleted') && trip.isDeleted == true) {
                 throw new Meteor.Error(407, "This trip has been removed, can't feedback");
             }
+            var ticket = CheckInTickets.findOne({
+                $and: [
+                    {tripId: trip._id},
+                    {userId: this.userId},
+                    {isDeleted: false}
+                ]
+            });
+            if(!ticket){
+                throw new Meteor.Error(407, "You can not feedback for this trip and driver");
+            }
+            if (ticket.state !== 'checkedOut') {
+                throw new Meteor.Error(408, "You must checkout before add a feedback!");
+            }
             var feedback = Feedbacks.findOne({
                 $and: [
                     {tripId: trip._id},
