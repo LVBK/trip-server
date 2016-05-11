@@ -63,7 +63,6 @@ Meteor.publish("feedback_counter", function (tripId) {
         self.ready();
         return;
     } catch (err) {
-        console.log("feedback_counter", err);
         self.ready();
         return;
     }

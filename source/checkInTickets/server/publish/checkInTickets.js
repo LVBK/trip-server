@@ -115,6 +115,7 @@ Meteor.publishComposite("checkInTicket", function (checkInTicketId) {
                             fields: {
                                 origin: 1,
                                 destination: 1,
+                                owner: 1,
                                 isDeleted: 1
                             }
                         });
