@@ -1,8 +1,5 @@
 Meteor.methods({
     comment: function(tripId, receiveUserId, content) {
-        check(tripId, String);
-        check(receiveUserId, String);
-        check(content,String);
         Future = Npm.require('fibers/future');
         var myFuture = new Future();
         try {
@@ -33,7 +30,7 @@ Meteor.methods({
                 }
             })
         } catch (err) {
-            console.log("comment: ", err.reason);
+            console.log("comment: ", err);
             throw new Meteor.Error(407, err.reason || err.message);
         }
         return myFuture.wait();
