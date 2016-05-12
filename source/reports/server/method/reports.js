@@ -12,6 +12,9 @@ Meteor.methods({
                 reason: detailReason
             };
             check(reportRecord, ReportsSchema);
+            if(reportUserId == self.userId){
+                throw new Meteor.Error(408, "You can not report yourself!");
+            }
             Reports.insert(reportRecord,
                 function (err, result) {
                     if (err) {
