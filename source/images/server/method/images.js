@@ -7,10 +7,10 @@ updateUserAvatarAsync = function (userId, fileData, callback) {
                 var user = Meteor.users.findOne({_id: userId});
                 Meteor.setTimeout(function () {
                     try {
-                        if (user && user.publicProfile.avatar != null) {
-                            Images.remove({_id: user.publicProfile.avatar})
+                        if (user && user.avatar != null) {
+                            Images.remove({_id: user.avatar})
                         }
-                        Meteor.users.update(user, {$set: {'publicProfile.avatar': fileObj._id}}, function () {
+                        Meteor.users.update(user, {$set: {'avatar': fileObj._id}}, function () {
                             callback(false, true);
                         });
                     } catch (err2) {

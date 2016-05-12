@@ -91,7 +91,7 @@ Meteor.publishComposite("trip_search", function (origin, destination, distance, 
             children: [
                 {
                     find: function (trip) {
-                        return Meteor.users.find({_id: trip.owner}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: trip.owner}, {fields: {name: 1, avatar: 1}});
                     }
                 }
             ]
@@ -129,7 +129,7 @@ Meteor.publishComposite("trip_detail", function (tripId) {
             children: [
                 {
                     find: function (trip) {
-                        return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {publicProfile: 1, isDeleted: 1}});
+                        return Meteor.users.find({_id: {$in: trip.slots}}, {fields: {name: 1, avatar: 1, isDeleted: 1}});
                     }
                 }
             ]

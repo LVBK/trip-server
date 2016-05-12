@@ -33,7 +33,7 @@ Meteor.publishComposite("comments", function (tripId, limit) {
             children: [
                 {
                     find: function (comment) {
-                        return Meteor.users.find({_id: comment.from}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: comment.from}, {fields: {name: 1, avatar: 1}});
                     }
                 }
             ]

@@ -97,7 +97,7 @@ Meteor.publishComposite("notifications", function (limit) {
             children: [
                 {
                     find: function (notification) {
-                        return Meteor.users.find({_id: notification.senderId}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: notification.senderId}, {fields: {name: 1, avatar: 1}});
                     }
                 }
             ]

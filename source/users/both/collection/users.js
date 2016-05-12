@@ -1,36 +1,36 @@
-PublicProfileSchema = new SimpleSchema({
-    name: {
-        type: String,
-        optional: true
-    },
-    birthday: {
-        type: Date,
-        optional: true
-    },
-    gender: {
-        type: String,
-        allowedValues: ['male', 'female'],
-        optional: true
-    },
-    avatar: {
-        type: String,
-        optional: true
-    }
-});
-PrivateProfileSchema = new SimpleSchema({
-    address: {
-        type: String,
-        optional: true
-    },
-    phoneNumber: {
-        type: String,
-        optional: true
-    },
-    idCardImage: {
-        type:String,
-        optional:true
-    }
-});
+//PublicProfileSchema = new SimpleSchema({
+//    name: {
+//        type: String,
+//        optional: true
+//    },
+//    birthday: {
+//        type: Date,
+//        optional: true
+//    },
+//    gender: {
+//        type: String,
+//        allowedValues: ['male', 'female'],
+//        optional: true
+//    },
+//    avatar: {
+//        type: String,
+//        optional: true
+//    }
+//});
+//PrivateProfileSchema = new SimpleSchema({
+//    address: {
+//        type: String,
+//        optional: true
+//    },
+//    phoneNumber: {
+//        type: String,
+//        optional: true
+//    },
+//    idCardImage: {
+//        type:String,
+//        optional:true
+//    }
+//});
 UsersSchema = new SimpleSchema({
     username: {
         type: String,
@@ -65,13 +65,55 @@ UsersSchema = new SimpleSchema({
     createdAt: {
         type: Date
     },
-    publicProfile: {
-        type: PublicProfileSchema,
+    name: {
+        type: String,
         optional: true
     },
-    privateProfile: {
-        type: PrivateProfileSchema,
+    birthday: {
+        type: Date,
         optional: true
+    },
+    gender: {
+        type: String,
+        allowedValues: ['male', 'female'],
+        optional: true
+    },
+    avatar: {
+        type: String,
+        optional: true
+    },
+    chattiness: {
+        type: String,
+        optional: true,
+        allowedValues:['bla', 'blabla', 'blablabla']
+    },
+    smoking: {
+        type: String,
+        optional: true,
+        allowedValues:['smoke', 'nosmoke', 'sometimes']
+    },
+    pets: {
+        type: String,
+        optional: true,
+        allowedValues:['nopet', 'depend', 'fine']
+    },
+    music: {
+        type: String,
+        optional: true,
+        allowedValues:['silence', 'fancy', 'all']
+    },
+
+    address: {
+        type: String,
+        optional: true
+    },
+    phoneNumber: {
+        type: String,
+        optional: true
+    },
+    idCardImage: {
+        type:String,
+        optional:true
     },
     // Make sure this services field is in your schema if you're using any of the accounts packages
     services: {
@@ -127,7 +169,7 @@ UsersSchema = new SimpleSchema({
     identityAuthentication: {
         type: Boolean,
         defaultValue: false
-    }
+    },
 });
 
 Meteor.users.attachSchema(UsersSchema);

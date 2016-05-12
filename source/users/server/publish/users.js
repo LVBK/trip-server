@@ -29,7 +29,7 @@ Meteor.publish("employee_list", function (selector, options) {
 
         var findOptions = {
             skip: options.skip,
-            fields: {emails: 1, publicProfile: 1, roles: 1}
+            fields: {emails: 1, name: 1, avatar: 1, roles: 1}
         };
         if (options.limit > 0) {
             findOptions.limit = options.limit;
@@ -77,7 +77,7 @@ Meteor.publish("user_list", function (selector, options) {
         }
         var findOptions = {
             skip: options.skip,
-            fields: {emails: 1, publicProfile: 1}
+            fields: {emails: 1, name: 1, avatar: 1}
         };
         if (options.limit > 0) {
             findOptions.limit = options.limit;
@@ -104,12 +104,21 @@ Meteor.publish("user_detail", function (userId) {
         check(userId, String);
         var findOptions = {
             limit: 1,
-            fields: {publicProfile: 1, rate: 1, total_rate_user: 1, total_comment: 1, isDeleted: 1}
+            fields: {
+                name: 1,
+                avatar: 1,
+                gender: 1,
+                birthday: 1,
+                rate: 1,
+                total_rate_user: 1,
+                total_comment: 1,
+                isDeleted: 1
+            }
         };
         if (userIsInUserManagerRole(self.userId)) {
             findOptions = {
                 limit: 1,
-                fields: {emails: 1, publicProfile: 1, privateProfile: 1, isDeleted: 1}
+                fields: {emails: 1, name: 1, avatar: 1, gender: 1, birthday: 1, phoneNumber: 1, address: 1, isDeleted: 1}
             };
         }
         return Meteor.users.find({_id: userId}, findOptions);

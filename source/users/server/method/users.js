@@ -4,11 +4,15 @@ updateUserAsync = function (_id, modifier, callback) {
             {'_id': _id},
             {
                 $set: {
-                    'publicProfile.name': modifier.publicProfile.name,
-                    'publicProfile.gender': modifier.publicProfile.gender,
-                    'publicProfile.birthday': modifier.publicProfile.birthday,
-                    'privateProfile.phoneNumber': modifier.privateProfile.phoneNumber,
-                    'privateProfile.address': modifier.privateProfile.address
+                    'name': modifier.name,
+                    'gender': modifier.gender,
+                    'birthday': modifier.birthday,
+                    'phoneNumber': modifier.phoneNumber,
+                    'address': modifier.address,
+                    'chattiness': modifier.chattiness,
+                    'smoking': modifier.smoking,
+                    'pets': modifier.pets,
+                    'music': modifier.music,
                 }
             },
             function (err, result) {
@@ -113,11 +117,13 @@ Accounts.onCreateUser(function (options, user) {
         }
         if (user.services) {
             var service = _.keys(user.services)[0];
-            if (service === "password" || service === "facebook") {
-                check(options.publicProfile, Match.Optional(PublicProfileSchema));
-                user.publicProfile = options.publicProfile || {};
-                check(options.privateProfile, Match.Optional(PrivateProfileSchema));
-                user.privateProfile = options.privateProfile || {};
+            if (service === "password") {
+                check(options.name, Match.Optional(String));
+                check(options.birthday, Match.Optional(Date));
+                check(options.gender, Match.Optional(String));
+                user.name = options.name;
+                user.birthday = options.birthday;
+                user.gender = options.gender;
             }
 
             var email = user.services[service].email;
@@ -129,9 +135,9 @@ Accounts.onCreateUser(function (options, user) {
             if (!existingUser) {
                 user.emails = [];
                 user.emails.push({address: email, verified: true});
-                user.publicProfile.name = user.services[service].name;
-                user.publicProfile.avatar = user.services[service].avatar;
-                user.publicProfile.gender = user.services[service].gender;
+                user.name = user.services[service].name;
+                user.avatar = user.services[service].avatar;
+                user.gender = user.services[service].gender;
                 return user;
             }
             // precaution, these will exist from accounts-password if used
@@ -210,8 +216,11 @@ Meteor.methods({
                 username: Match.Optional(String),
                 password: String,
                 retype_password: String,
-                publicProfile: Match.Optional(PublicProfileSchema),
-                privateProfile: Match.Optional(PrivateProfileSchema),
+                name: Match.Optional(String),
+                birthday: Match.Optional(Date),
+                gender: Match.Optional(String),
+                phoneNumber: Match.Optional(String),
+                address: Match.Optional(String),
                 role: Match.Optional(String)
             }));
             if (!this.userId) {
@@ -236,8 +245,11 @@ Meteor.methods({
                     email: employee.email,
                     username: employee.username,
                     password: employee.password,
-                    publicProfile: employee.publicProfile,
-                    privateProfile: employee.privateProfile
+                    name: employee.name,
+                    birthday: employee.birthday,
+                    gender: employee.gender,
+                    phoneNumber: employee.phoneNumber,
+                    address: employee.address,
                 });
                 Roles.addUsersToRoles(employeeId, employee.role, Roles.GLOBAL_GROUP);
                 Meteor.users.update({_id: employeeId},
@@ -262,8 +274,11 @@ Meteor.methods({
                 role: Match.Optional(String),
                 password: Match.Optional(String),
                 retype_password: Match.Optional(String),
-                publicProfile: Match.Optional(PublicProfileSchema),
-                privateProfile: Match.Optional(PrivateProfileSchema),
+                name: Match.Optional(String),
+                birthday: Match.Optional(Date),
+                gender: Match.Optional(String),
+                phoneNumber: Match.Optional(String),
+                address: Match.Optional(String),
             }));
             if (!this.userId) {
                 throw new Meteor.Error(406, "Login first");
@@ -402,8 +417,11 @@ Meteor.methods({
             check(modifier, Match.ObjectIncluding({
                 password: Match.Optional(String),
                 retype_password: Match.Optional(String),
-                publicProfile: Match.Optional(PublicProfileSchema),
-                privateProfile: Match.Optional(PrivateProfileSchema),
+                name: Match.Optional(String),
+                birthday: Match.Optional(Date),
+                gender: Match.Optional(String),
+                phoneNumber: Match.Optional(String),
+                address: Match.Optional(String),
             }));
             check(_id.String);
             if (!this.userId) {
@@ -439,8 +457,15 @@ Meteor.methods({
         var myFuture = new Future();
         try {
             check(modifier, Match.ObjectIncluding({
-                publicProfile: Match.Optional(PublicProfileSchema),
-                privateProfile: Match.Optional(PrivateProfileSchema),
+                name: Match.Optional(String),
+                birthday: Match.Optional(Date),
+                gender: Match.Optional(String),
+                phoneNumber: Match.Optional(String),
+                address: Match.Optional(String),
+                chattiness: Match.Optional(String),
+                smoking: Match.Optional(String),
+                pets: Match.Optional(String),
+                music: Match.Optional(String),
             }));
             if (!this.userId) {
                 throw new Meteor.Error(406, "Login first");

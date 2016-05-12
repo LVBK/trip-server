@@ -34,7 +34,7 @@ Meteor.publishComposite("feedbacks", function (userId, limit) {
             children: [
                 {
                     find: function (feedback) {
-                        return Meteor.users.find({_id: feedback.from}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: feedback.from}, {fields: {name: 1, avatar: 1}});
                     }
                 }
             ]

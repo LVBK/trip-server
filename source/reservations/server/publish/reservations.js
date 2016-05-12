@@ -52,7 +52,7 @@ Meteor.publishComposite("reservation_to_me", function (date, limit) {
                 },
                 {
                     find: function (reservation) {
-                        return Meteor.users.find({_id: reservation.userId}, {fields: {publicProfile: 1}});
+                        return Meteor.users.find({_id: reservation.userId}, {fields: {name: 1, avatar: 1}});
                     }
                 }
             ]
@@ -178,7 +178,7 @@ Meteor.publishComposite("my_reservation_detail", function (reservationId) {
                 },
                 {
                     find: function (reservation) {
-                        return Meteor.users.find({_id: reservation.to}, {fields: {publicProfile: 1, isDeleted: 1}});
+                        return Meteor.users.find({_id: reservation.to}, {fields: {name: 1, avatar: 1, isDeleted: 1}});
                     }
                 }
             ]
@@ -225,7 +225,7 @@ Meteor.publishComposite("reservation_detail", function (reservationId) {
                 },
                 {
                     find: function (reservation) {
-                        return Meteor.users.find({_id: reservation.userId}, {fields: {publicProfile: 1, isDeleted: 1}});
+                        return Meteor.users.find({_id: reservation.userId}, {fields: {name: 1, avatar: 1, isDeleted: 1}});
                     }
                 }
             ]
