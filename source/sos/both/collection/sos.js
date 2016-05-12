@@ -17,7 +17,12 @@ SosSchema = new SimpleSchema({
     sosLocation: {
         type: LocationSchema,
         optional: true
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        optional: true,
+        defaultValue: false
+    },
 });
 
 Sos.attachSchema(SosSchema);
