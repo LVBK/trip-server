@@ -1,0 +1,1 @@
+Sos.permit(['insert', 'update', 'remove']).never()

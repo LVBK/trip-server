@@ -54,7 +54,7 @@ Meteor.methods({
                         ]
                     }
                 );
-                shouldCheckoutTickets.forEach(function(ticket){
+                shouldCheckoutTickets.forEach(function (ticket) {
                     Notifications.insert({
                         userId: ticket.userId,
                         actionType: Meteor.settings.actionTypes[6].type,
@@ -69,13 +69,26 @@ Meteor.methods({
                     {
                         $and: [
                             {state: 'checkedIn'},
-                            {checkOutLimitTime: {$lt: now}},
+                            {checkOutLimitTime: {$eq: now}},
                             {isDeleted: false}
                         ]
                     }
                 );
                 sosTickets.forEach(function (ticket) {
-                    //TODO: create SOS report.
+                    var exist = Sos.findOne({
+                        $and: [
+                            {userId: ticket.userId},
+                            {tripId: ticket.tripId}
+                        ]
+                    });
+                    if (!exist) {
+                        Sos.insert({
+                                userId: ticket.userId,
+                                sosLocation: ticket.checkedInLocation,
+                                tripId: ticket.tripId
+                            }
+                        )
+                    }
                 });
             }, 1000 * 60);
         } catch (err) {
@@ -96,7 +109,7 @@ Meteor.methods({
                 throw new Meteor.Error(406, "checkOutLimitMinute must larger than 0");
             }
             var now = new Date();
-            now.setSeconds(0,0);
+            now.setSeconds(0, 0);
             var checkOutLimitTime = new Date(now.getTime());
             checkOutLimitTime.setMinutes(checkOutLimitTime.getMinutes() + checkOutLimitMinute);
             var ticket = CheckInTickets.findOne({$and: [{_id: checkInTicketId}, {isDeleted: false}]});
@@ -165,7 +178,12 @@ Meteor.methods({
                 throw new Meteor.Error(410, 'Incorrect checkout password');
             }
             if (ticket.checkOutPassword == checkOutPasswordReverse) {
-                //TODO: create SOS report with checkOutLocation
+                Sos.insert({
+                        userId: self.userId,
+                        sosLocation: checkOutLocation,
+                        tripId: ticket.tripId
+                    }
+                )
             }
             //update if current
             console.log(checkOutLocation);
