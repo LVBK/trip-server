@@ -104,12 +104,12 @@ Meteor.publish("user_detail", function (userId) {
         check(userId, String);
         var findOptions = {
             limit: 1,
-            fields: {publicProfile: 1, rate: 1, total_rate_user: 1, total_comment: 1}
+            fields: {publicProfile: 1, rate: 1, total_rate_user: 1, total_comment: 1, isDeleted: 1}
         };
         if (userIsInUserManagerRole(self.userId)) {
             findOptions = {
                 limit: 1,
-                fields: {emails: 1, publicProfile: 1, privateProfile: 1}
+                fields: {emails: 1, publicProfile: 1, privateProfile: 1, isDeleted: 1}
             };
         }
         return Meteor.users.find({_id: userId}, findOptions);

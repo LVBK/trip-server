@@ -12,8 +12,17 @@ Meteor.methods({
                 reason: detailReason
             };
             check(reportRecord, ReportsSchema);
-            if(reportUserId == self.userId){
+            if (reportUserId == self.userId) {
                 throw new Meteor.Error(408, "You can not report yourself!");
+            }
+            var reportUser = Meteor.users.findOne({
+                $and: [
+                    {_id: reportUserId},
+                    {isDeleted: false}
+                ]
+            });
+            if(!reportUser){
+                throw new Meteor.Error(409, "Not found user for report!");
             }
             Reports.insert(reportRecord,
                 function (err, result) {
